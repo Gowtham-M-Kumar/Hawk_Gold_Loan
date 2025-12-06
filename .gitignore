@@ -1,0 +1,70 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Django
+db.sqlite3
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.db
+media/
+
+.env
+.env.*
+
+# Virtualenv
+env/
+venv/
+ENV/
+.venv/
+.envrc
+
+# VSCode
+.vscode/
+.history/
+
+# macOS
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Backup files
+*~
+*.bak
+*.swp
+*.swo
+
+# Test output
+htmlcov/
+.coverage
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+
+# Migrations
+*/migrations/*.pyc
+*/migrations/*.pyo
+*/migrations/*.pyd
+*/migrations/__pycache__/
+*/migrations/*.py
+!*/migrations/__init__.py
+
+# Node/npm
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Others
+*.tmp
+*.temp

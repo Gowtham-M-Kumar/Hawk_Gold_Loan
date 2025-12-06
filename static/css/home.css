@@ -1,0 +1,254 @@
+/* HERO SECTION */
+.hero-section {
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+    padding: 28px 30px;
+    border-radius: 14px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.hero-title {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.hero-subtitle {
+    opacity: 0.8;
+    margin-top: 3px;
+}
+
+.hero-btn {
+    background: white;
+    color: #1e3a8a;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.hero-btn:hover {
+    background: #e0e7ff;
+}
+
+
+/* STATS GRID */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 35px;
+}
+
+.stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 14px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    transition: transform .2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+}
+
+.icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-wrap svg {
+    width: 26px;
+    height: 26px;
+    color: white;
+}
+
+/* Gradient backgrounds for icons */
+.bg-blue   { background: linear-gradient(135deg, #3b82f6, #1e40af); }
+.bg-green  { background: linear-gradient(135deg, #10b981, #065f46); }
+.bg-orange { background: linear-gradient(135deg, #f59e0b, #b45309); }
+.bg-purple { background: linear-gradient(135deg, #8b5cf6, #5b21b6); }
+
+.stat-number {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.stat-label {
+    color: #555;
+    font-size: 13px;
+}
+
+
+/* Recent Table */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.view-all-btn {
+    font-size: 14px;
+    color: #2563eb;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.recent-loans-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.05);
+}
+
+.recent-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.recent-table th, 
+.recent-table td {
+    padding: 14px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+
+.status {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.status.active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status.closed {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.empty-row {
+    text-align: center;
+    color: #999;
+    padding: 25px 0;
+}
+
+
+/* GOLD CALCULATOR STYLES — BLUE / TEAL THEME */
+.gold-calculator {
+    background: linear-gradient(135deg, #e8f3ff, #f3ffff);
+    padding: 18px;
+    margin-top: 25px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    max-width: 520px;
+    border: 1px solid rgba(100, 170, 255, 0.25);
+}
+
+.calc-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2e5da8;  /* Deep blue */
+}
+
+.calc-input {
+    width: 97%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 12px;
+    border-radius: 10px;
+    border: 1px solid #9ec3ff;
+    background: #ffffff;
+}
+
+.calc-input:focus {
+    outline: none;
+    border-color: #4da3ff;
+    box-shadow: 0 0 6px rgba(77, 163, 255, 0.3);
+}
+
+.calc-subtitle {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #3b7ac9;
+}
+
+.carat-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.carat-btn {
+    flex: 1;
+    padding: 8px 0;
+    text-align: center;
+    border-radius: 10px;
+    border: 1px solid #98c7ff;
+    background: #e9f4ff;
+    color: #2462a5;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+.carat-btn.active {
+    background: linear-gradient(135deg, #4ba3ff, #34c7c7); /* Blue → Teal */
+    color: white;
+    border-color: #2e8fff;
+}
+
+.calc-result {
+    background: linear-gradient(135deg, #4ba3ff, #34c7c7); /* Same gradient */
+    color: white;
+    padding: 16px;
+    border-radius: 12px;
+    margin-top: 18px;
+    font-size: 18px;
+    text-align: center;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(52, 151, 180, 0.25);
+}
+
+.apply-now-btn {
+    background: linear-gradient(135deg, #ff6e6e, #ff8b70);
+    width: 100%;
+    margin-top: 15px;
+    padding: 12px;
+    color: white;
+    border-radius: 12px;
+    font-size: 17px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.apply-now-btn:hover {
+    box-shadow: 0 4px 10px rgba(255, 110, 110, 0.4);
+    transform: translateY(-2px);
+}
+
+.calc-note {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #6d6d6d;
+}

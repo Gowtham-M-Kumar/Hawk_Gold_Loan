@@ -1,0 +1,43 @@
+{% extends 'gold_loan/base.html' %}
+{% block title %}OTP Verification{% endblock %}
+{% block content %}
+<section class="card" style="max-width:620px; margin:auto;">
+    <h2>Activate {{ loan.loan_number }}</h2>
+    <p style="color:#64748b;">Send an OTP to any phone number, then verify it to activate the loan.</p>
+
+    <div style="display:grid; gap:24px;">
+        <form method="post" class="card" style="box-shadow:none; padding:0;">
+            {% csrf_token %}
+            <input type="hidden" name="send_otp" value="1" />
+            <div class="form-grid">
+                <div>
+                    {{ phone_form.phone_number.label_tag }}
+                    {{ phone_form.phone_number }}
+                    {% if phone_form.phone_number.errors %}
+                        <div style="color:#dc2626;">{{ phone_form.phone_number.errors|join:', ' }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn btn-light">Send OTP</button>
+            </div>
+        </form>
+
+        <form method="post" class="card" style="box-shadow:none; padding:0;">
+            {% csrf_token %}
+            <div class="form-grid">
+                <div>
+                    {{ otp_form.code.label_tag }}
+                    {{ otp_form.code }}
+                    {% if otp_form.code.errors %}
+                        <div style="color:#dc2626;">{{ otp_form.code.errors|join:', ' }}</div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="actions" style="justify-content:flex-start;">
+                <button type="submit" class="btn btn-dark">Verify & Activate</button>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

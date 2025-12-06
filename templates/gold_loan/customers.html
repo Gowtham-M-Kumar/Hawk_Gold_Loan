@@ -1,0 +1,103 @@
+{% extends "gold_loan/base.html" %}
+{% load static %}
+
+{% block title %}Customers — Gold Loan{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/customers.css' %}">
+<script src="https://unpkg.com/feather-icons"></script>
+<style>
+.customer-card {
+    order: var(--order);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO HEADER -->
+<div class="hero-section">
+    <div>
+        <h1 class="hero-title">Customers</h1>
+    </div>
+
+    <div class="sort-box">
+        <form method="get" class="sort-form" style="display:inline-block;">
+            <select name="sort" onchange="this.form.submit()" class="sort-select">
+                <option value="name" {% if active_sort == 'name' %}selected{% endif %}>Sort by Name (A–Z)</option>
+                <option value="date" {% if active_sort == 'date' %}selected{% endif %}>Sort by Date Added</option>
+                <option value="pending" {% if active_sort == 'pending' %}selected{% endif %}>Sort by Pending Payments</option>
+            </select>
+        </form>
+
+
+    </div>
+</div>
+
+<!-- CUSTOMER GRID -->
+<div class="customer-grid" id="customerGrid">
+    {% for c in customers %}
+        <a href="{% url 'gold_loan:customer_loans' c.id %}"
+            class="customer-card {% if c.has_pending %}pending-highlight{% endif %}"
+            style="--order: {{ c.order_index }};">
+
+
+            <div class="customer-img">
+                {% if c.photo %}
+                    <img src="{{ c.photo.url }}" alt="{{ c.name }}">
+                {% else %}
+                    <img src="{% static 'img/default-profile.png' %}" alt="Profile">
+                {% endif %}
+
+            </div>
+
+            <div class="customer-info">
+                <h3 class="c-name">{{ c.name }}</h3>
+                <p class="c-age">{{ c.age }} years</p>
+                <p class="c-address">{{ c.address }}</p>
+
+                <div class="loan-count">
+                    <i data-feather="credit-card"></i>
+                    <span>Total Loans: {{ c.total_loans }}</span>
+                </div>
+            </div>
+        </a>
+    {% empty %}
+        <p style="text-align:center;color:#6b7280;margin-top:20px;">No customers found.</p>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    feather.replace();
+
+    // Sorting Logic
+    const sortSelect = document.getElementById("sortSelect");
+    const grid = document.getElementById("customerGrid");
+
+    sortSelect.addEventListener("change", () => {
+        const type = sortSelect.value;
+        const cards = Array.from(grid.children);
+
+        cards.sort((a, b) => {
+            if (type === "name") {
+                return a.querySelector(".c-name").innerText.localeCompare(
+                    b.querySelector(".c-name").innerText
+                );
+            }
+            if (type === "date") {
+                return new Date(a.dataset.date) - new Date(b.dataset.date);
+            }
+            if (type === "pending") {
+                return (b.classList.contains("pending-highlight") ? 1 : 0) -
+                       (a.classList.contains("pending-highlight") ? 1 : 0);
+            }
+        });
+
+        grid.innerHTML = "";
+        cards.forEach(card => grid.appendChild(card));
+    });
+</script>
+{% endblock %}

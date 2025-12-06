@@ -1,0 +1,101 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+{% endblock %}
+
+{% block title %}Loan — Step 4{% endblock %}
+
+{% block content %}
+
+<script>
+const loanId = "{{ loan_id }}";
+</script>
+
+<div class="entry-wrapper">
+
+    <div class="steps-header">
+        {% if is_existing_customer %}
+            <div class="step-tab">STEP 1<br><span>Product</span></div>
+            <div class="step-tab">STEP 2<br><span>Documents</span></div>
+            <div class="step-tab active">STEP 3<br><span>OTP</span></div>
+        {% else %}
+            <div class="step-tab">STEP 1<br><span>Personal</span></div>
+            <div class="step-tab">STEP 2<br><span>Product</span></div>
+            <div class="step-tab">STEP 3<br><span>Documents</span></div>
+            <div class="step-tab active">STEP 4<br><span>OTP</span></div>
+        {% endif %}
+    </div>
+
+    <div class="entry-card">
+
+        <h2 class="step-title">Verify with OTP</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if is_existing_customer %}
+                <input type="hidden" name="existing_customer" value="{{ customer.id }}">
+            {% endif %}
+
+            <div class="form-grid">
+                <div>
+                    <label>Phone Number *</label>
+                    {{ phone_form.phone_number }}
+                </div>
+
+                <div>
+                    <label>Enter OTP</label>
+                    <input id="otp_input" type="text" maxlength="4" placeholder="1234">
+                </div>
+            </div>
+
+            <p id="otp_message" style="margin-top:10px; font-weight:600;"></p>
+
+            <div class="footer-nav">
+                {% if is_existing_customer %}
+                    <a href="{% url 'gold_loan:add_loan_step3' customer.id %}" class="btn outline">← Back</a>
+                {% else %}
+                    <a href="{% url 'gold_loan:loan_entry_step3' %}" class="btn outline">← Back</a>
+                {% endif %}
+
+                <button type="button" id="sendOtpBtn" class="btn">Send OTP</button>
+                <button type="submit" id="verifyOtpBtn" class="btn" disabled>Verify OTP</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let generatedOtp = null;
+
+function generateOTP() {
+    generatedOtp = Math.floor(1000 + Math.random() * 9000);
+}
+
+document.getElementById("sendOtpBtn").addEventListener("click", function () {
+    generateOTP();
+    document.getElementById("otp_input").value = generatedOtp;
+    document.getElementById("otp_message").innerHTML = "OTP generated.";
+    document.getElementById("otp_message").style.color = "green";
+    document.getElementById("verifyOtpBtn").disabled = false;
+});
+
+document.getElementById("verifyOtpBtn").addEventListener("click", function (e) {
+    const userOtp = document.getElementById("otp_input").value;
+
+    if (userOtp == generatedOtp) {
+        document.getElementById("otp_message").innerHTML = "OTP Verified! Creating loan…";
+        document.getElementById("otp_message").style.color = "green";
+    } else {
+        e.preventDefault();
+        document.getElementById("otp_message").innerHTML = "Invalid OTP.";
+        document.getElementById("otp_message").style.color = "red";
+    }
+});
+</script>
+
+{% endblock %}
+

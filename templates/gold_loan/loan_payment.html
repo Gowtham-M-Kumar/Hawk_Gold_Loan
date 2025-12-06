@@ -1,0 +1,227 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<style>
+
+    .payment-card {
+        background: #fff;
+        padding: 25px;
+        border-radius: 14px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        max-width: 750px;
+        margin: auto;
+        margin-top: 30px;
+    }
+
+    .summary-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px dashed #eee;
+        font-size: 15px;
+    }
+
+    .value {
+        font-weight: 600;
+    }
+
+    .toggle-details {
+        margin-top: 15px;
+        background: #f1f5fb;
+        padding: 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        text-align: center;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+    .toggle-details:hover {
+        background: #e6eefc;
+    }
+
+    .details-box {
+        display: none;
+        background: #f9fbfe;
+        padding: 15px;
+        border-radius: 10px;
+        margin-top: 10px;
+        border: 1px solid #e4e9f2;
+    }
+
+    .details-heading {
+        margin-top: 12px;
+        font-weight: 700;
+    }
+
+    .input-box label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .input-box input, select, textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 15px;
+    }
+
+    .pay-btn {
+        width: 100%;
+        background: #1a73e8;
+        color: white;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .pay-btn:hover {
+        background: #0f5fc4;
+    }
+
+    .info-box {
+        background: #f3f9ff;
+        padding: 12px;
+        border-radius: 8px;
+        border-left: 4px solid #1a73e8;
+        margin-top: 10px;
+    }
+
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="payment-card">
+    <div class="summary-title">Loan Payment</div>
+
+    <!-- BASIC SUMMARY -->
+    <div class="summary-row">
+        <span>Customer</span>
+        <span class="value">{{ loan.customer.name }}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Original Principal</span>
+        <span class="value">₹ {{ original_principal }}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Principal Remaining</span>
+        <span class="value">₹ {{ remaining_principal }}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Interest Till Today</span>
+        <span class="value">₹ {{ pending_interest }}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Daily Interest </span>
+        <span class="value">₹ {{ daily_interest }}</span>
+    </div>
+<div class="details-heading">Totals</div>
+    <div class="summary-row">
+        <span>Total Closing Amount</span>
+        <span class="value">₹ {{ closing_amount }}</span>
+    </div>
+
+    <div class="summary-row">
+        <span>Total Paid Till Now</span>
+        <span class="value">₹ {{ total_paid }}</span>
+    </div>
+
+    {% comment %} <div class="summary-row">
+        <span>Pending Amount (Full Loan)</span>
+        <span class="value">₹ {{ closing_amount }}</span>
+    </div> {% endcomment %}
+
+
+    <!-- DETAILS TOGGLE -->
+    <div class="toggle-details" onclick="toggleDetails()">View Detailed Breakdown ▼</div>
+
+    <!-- DETAILS BOX -->
+    <div class="details-box" id="detailsBox">
+
+        <div class="details-heading">Interest Breakdown</div>
+        <div class="summary-row"><span>Total Interest Accrued</span><span class="value">₹ {{ total_interest_accrued }}</span></div>
+        <div class="summary-row"><span>Interest Rate</span><span class="value">{{ interest_rate }}%</span></div>
+        <div class="summary-row"><span>Interest Paid</span><span class="value">₹ {{ total_interest_paid }}</span></div>
+        <div class="summary-row"><span>Interest Pending</span><span class="value">₹ {{ pending_interest }}</span></div>
+
+        <div class="details-heading">Principal Breakdown</div>
+        <div class="summary-row"><span>Original Principal</span><span class="value">₹ {{ original_principal }}</span></div>
+        <div class="summary-row"><span>Principal Paid</span><span class="value">₹ {{ total_principal_paid }}</span></div>
+        <div class="summary-row"><span>Principal Remaining</span><span class="value">₹ {{ remaining_principal }}</span></div>
+
+        
+        
+    </div>
+
+    <hr style="margin: 20px 0;">
+
+
+    <!-- PAYMENT FORM -->
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="input-box">
+            <label>Enter Payment Amount (₹)</label>
+            <input type="number" step="0.01" name="payment_amount" id="payment_amount" placeholder="Enter amount" required>
+        </div>
+
+        <div class="input-box">
+            <label>Payment Medium</label>
+            <select name="medium">
+                <option value="cash">Cash</option>
+                <option value="upi">UPI</option>
+                <option value="bank">Bank Transfer</option>
+            </select>
+        </div>
+
+        <div class="input-box">
+            <label>Notes (optional)</label>
+            <textarea name="notes"></textarea>
+        </div>
+
+        <div class="info-box">
+            Remaining Balance Preview: <strong>₹ <span id="remaining_balance">{{ closing_amount }}</span></strong>
+        </div>
+
+        <button type="submit" class="pay-btn">Confirm Payment</button>
+    </form>
+</div>
+
+<script>
+    function toggleDetails() {
+        const box = document.getElementById("detailsBox");
+        box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+
+    const inputAmount = document.getElementById("payment_amount");
+    const remainingField = document.getElementById("remaining_balance");
+    const closingAmount = parseFloat("{{ closing_amount }}");
+
+    inputAmount.addEventListener("input", () => {
+        let pay = parseFloat(inputAmount.value) || 0;
+        let remain = closingAmount - pay;
+        if (remain < 0) remain = 0;
+        remainingField.textContent = remain.toFixed(2);
+    });
+</script>
+
+{% endblock %}

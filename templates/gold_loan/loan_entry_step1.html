@@ -1,0 +1,128 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+<style>
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fff;
+}
+.file-input-wrapper input[type="file"] { flex: 1; }
+.errorlist { color:#dc2626; font-size:13px; margin-top:4px; }
+.form-errors { background:#fee2e2; border:1px solid #fca5a5; padding:12px; border-radius:6px; margin-bottom:16px; color:#991b1b; }
+</style>
+{% endblock %}
+
+{% block title %}New Loan — Step 1{% endblock %}
+
+{% block content %}
+
+<div class="entry-wrapper">   <!-- ⭐ FIX: Added wrapper -->
+
+    <div class="steps-header">
+        <div class="step-tab active">STEP 1<br><span>Personal</span></div>
+        <div class="step-tab">STEP 2<br><span>Product</span></div>
+        <div class="step-tab">STEP 3<br><span>Documents</span></div>
+        <div class="step-tab">STEP 4<br><span>OTP</span></div>
+    </div>
+
+    <div class="entry-card">
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <h2 class="step-title">Personal Details</h2>
+            <p class="step-desc">Enter customer's basic information.</p>
+
+            {% if customer_form.non_field_errors %}
+            <div class="form-errors">
+                {{ customer_form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            <div class="form-grid">
+
+                <div>
+                    <label>Full Name *</label>
+                    {{ customer_form.name }}
+                    {{ customer_form.name.errors }}
+                </div>
+
+                <div>
+                    <label>Alternate Name</label>
+                    {{ customer_form.alternate_name }}
+                    {{ customer_form.alternate_name.errors }}
+                </div>
+
+                <div>
+                    <label>Mobile Number *</label>
+                    {{ customer_form.mobile_number }}
+                    {{ customer_form.mobile_number.errors }}
+                </div>
+
+                <div>
+                    <label>Alternate Number</label>
+                    {{ customer_form.alternate_number }}
+                    {{ customer_form.alternate_number.errors }}
+                </div>
+
+                <div>
+                    <label>Email</label>
+                    {{ customer_form.email }}
+                    {{ customer_form.email.errors }}
+                </div>
+
+                <div>
+                    <label>Aadhaar Number *</label>
+                    {{ customer_form.aadhaar_number }}
+                    {{ customer_form.aadhaar_number.errors }}
+                </div>
+
+                <div class="full">
+                    <label>Address *</label>
+                    {{ customer_form.address }}
+                    {{ customer_form.address.errors }}
+                </div>
+
+                <div>
+                    <label>Company</label>
+                    {{ customer_form.company }}
+                    {{ customer_form.company.errors }}
+                </div>
+
+                <div>
+                    <label>Customer Photo</label>
+
+                    <div class="file-input-wrapper">
+                        {{ customer_form.photo }}
+                        <button type="button"
+                                class="btn outline open-camera"
+                                data-target="{{ customer_form.photo.id_for_label }}">
+                            Use Camera
+                        </button>
+                    </div>
+
+                    {{ customer_form.photo.errors }}
+                </div>
+
+            </div>
+
+            <div class="footer-nav">
+                <div></div>
+                <button type="submit" name="action" value="next" class="btn">Continue →</button>
+            </div>
+
+        </form>
+    </div>
+
+</div> 
+
+{% endblock %}

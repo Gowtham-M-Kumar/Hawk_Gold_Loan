@@ -1,0 +1,134 @@
+/* KPI CARDS */
+.kpi-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.kpi{
+  background:#fff;
+  padding:14px;
+  border-radius:10px;
+  min-width:160px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.04);
+}
+.kpi .label{color:#6b7280;font-size:13px;}
+.kpi .value{font-size:20px;font-weight:700;margin-top:4px;}
+
+/* CARDS */
+.ga-card{
+  background:#fff;
+  border-radius:10px;
+  padding:18px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.05);
+  margin-bottom:18px;
+}
+
+/* TABLE */
+.table-compact{
+  width:100%;
+  border-collapse:collapse;
+}
+.table-compact th,
+.table-compact td{
+  padding:10px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:left;
+}
+
+/* RISK BADGES */
+.risk-badge{
+  padding:6px 10px;
+  border-radius:6px;
+  font-weight:600;
+  font-size:13px;
+  display:inline-block;
+}
+.risk-high{background:#fff1f2;color:#b91c1c;}
+.risk-medium{background:#fff7ed;color:#b45309;}
+.risk-low{background:#ecfdf5;color:#15803d;}
+
+/* TIMELINE */
+.timeline{
+  list-style:none;
+  padding:0;
+}
+.timeline li{
+  padding:8px 0;
+  border-left:2px solid #e2e8f0;
+  margin-left:12px;
+  padding-left:12px;
+}
+
+/* BUTTONS */
+.btn-primary{
+  background:#1a73e8;color:white;
+  padding:8px 12px;border-radius:8px;border:none;
+  cursor:pointer;
+}
+.btn-ghost{
+  background:white;border:1px solid #e5e7eb;
+  padding:8px 12px;border-radius:8px;cursor:pointer;
+}
+
+.link{color:#1a73e8;text-decoration:none;}
+
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* Suggestions dropdown */
+/* Wider dashboard search bar */
+.search-wrapper .ga-search {
+    width: 600px;   /* doubled width compared to default ~300px */
+    max-width: 100%; 
+    margin-top: 20px;
+}
+
+.suggest-box {
+    position: absolute;
+    top: 46px; /* matches ga-search input height */
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    display: none;
+    z-index: 2000;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.suggest-item {
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.suggest-item:hover {
+    background: #f8fafc;
+}
+
+.suggest-item:last-child {
+    border-bottom: none;
+}
+.suggest-item .name {
+    font-weight: 600;
+}
+
+.file-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.file-input-wrapper input[type="file"] {
+    flex: 1;
+}

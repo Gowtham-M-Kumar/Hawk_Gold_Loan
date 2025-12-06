@@ -1,0 +1,123 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/ga-layout.css' %}">
+
+{% endblock %}
+{% block title %}Loan {{ loan.loan_number }}{% endblock %}
+{% block content %}
+
+<div style="display:grid;grid-template-columns:2fr 360px;gap:12px;">
+  <div>
+    <div class="ga-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <h2 style="margin:0">Loan {{ loan.loan_number }}</h2>
+          <div style="color:#6b7280">Lot {{ loan.lot_no }} · {{ loan.customer.name }}</div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <a class="btn-ghost" href="{% url 'gold_loan:loan_payment' loan.id %}">Payments</a>
+          <a class="btn-ghost" href="{% url 'gold_loan:loan_edit' loan.id %}">Edit</a>
+          <form method="post" action="{% url 'gold_loan:loan_close' loan.id %}" style="display:inline">{% csrf_token %}<button class="btn-primary" type="submit">Close Loan</button></form>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;">
+
+          <div>
+              <label>Status</label>
+              <div>{{ loan.get_status_display }}</div>
+          </div>
+
+          <div>
+              <label>Total</label>
+              <div>₹{{ loan.total_loan_amount }}</div>
+          </div>
+
+          <div>
+              <label>Interest Rate</label>
+              <div>{{ loan.interest_rate }}%</div>
+          </div>
+
+          <div>
+              <label>Remaining Due</label>
+              <div style="font-weight:700;color:#ef4444;">
+                  ₹{{ remaining_due }}
+              </div>
+          </div>
+
+        </div>
+
+
+
+    </div>
+
+    <div class="ga-card">
+      <h4>Payment Log</h4>
+      <table class="table-compact">
+        <thead><tr><th>Date</th><th>Amount</th><th>Medium</th></tr></thead>
+        <tbody>
+          {% for p in payments %}<tr><td>{{ p.payment_date }}</td><td>₹{{ p.amount }}</td><td>{{ p.get_medium_display }}</td></tr>{% empty %}<tr><td colspan="3">No payments yet.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <aside>
+    <div class="ga-card">
+      <h4>Customer</h4>
+      <div class="customer-card">
+        {% if loan.customer.photo %}
+          <img src="{{ loan.customer.photo.url }}" alt="customer">
+        {% else %}
+          <img src="{% static 'images/avatar.png' %}" alt="avatar">
+        {% endif %}
+        <div>
+          <div style="font-weight:700">{{ loan.customer.name }}</div>
+          <div style="color:#6b7280">{{ loan.customer.mobile_number }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+
+    <div class="
+        risk-box
+        {% if loan.risk_level == 'high' %}risk-high
+        {% elif loan.risk_level == 'medium' %}risk-medium
+        {% else %}risk-low{% endif %}
+    ">
+        {{ loan.risk_score|default:"--" }}
+    </div>
+
+    <div>
+        <div style="font-weight:700">{{ loan.risk_level|capfirst }}</div>
+        <div style="color:#6b7280">Score based on payment history</div>
+    </div>
+
+</div>
+
+
+
+    <div class="ga-card">
+      <h4>Gold Items</h4>
+      <div class="item-gallery">
+        {% for item in loan.gold_items.all %}
+          <figure>
+            {% with first_image=item.images.first %}
+              {% if first_image %}
+                <img src="{{ first_image.image.url }}" alt="{{ item.item_name }}">
+              {% else %}
+                <img src="{% static 'images/gold-placeholder.png' %}" alt="{{ item.item_name }}">
+              {% endif %}
+            {% endwith %}
+            <figcaption>{{ item.item_name }} · {{ item.grams }}g</figcaption>
+          </figure>
+        {% endfor %}
+      </div>
+    </div>
+  </aside>
+</div>
+
+{% endblock %}

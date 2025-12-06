@@ -1,0 +1,108 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+{% endblock %}
+
+{% block title %}Loan — Step 3{% endblock %}
+
+{% block content %}
+<div class="entry-wrapper">
+
+    <div class="steps-header">
+        {% if is_existing_customer %}
+            <div class="step-tab">STEP 1<br><span>Product</span></div>
+            <div class="step-tab active">STEP 2<br><span>Documents</span></div>
+            <div class="step-tab">STEP 3<br><span>OTP</span></div>
+        {% else %}
+            <div class="step-tab">STEP 1<br><span>Personal</span></div>
+            <div class="step-tab">STEP 2<br><span>Product</span></div>
+            <div class="step-tab active">STEP 3<br><span>Documents</span></div>
+            <div class="step-tab">STEP 4<br><span>OTP</span></div>
+        {% endif %}
+    </div>
+
+    <div class="entry-card">
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if is_existing_customer %}
+                <input type="hidden" name="existing_customer" value="{{ customer.id }}">
+            {% endif %}
+
+            <h2 class="step-title">
+                {% if is_existing_customer %}Add Loan – Documents{% else %}Upload Documents{% endif %}
+            </h2>
+
+            {{ document_formset.management_form }}
+
+            {% for form in document_formset %}
+            <div class="item-box">
+                {{ form.non_field_errors }}
+
+                <div>
+                    <label>Document Type *</label>
+                    {{ form.document_type }}
+                </div>
+
+                <div class="other-doc-field" style="display:none;">
+                    <label>Enter Document Name *</label>
+                    {{ form.other_document_name }}
+                </div>
+
+                <div>
+                    <label>File Upload *</label>
+                    <div class="file-input-wrapper">
+                        {{ form.file }}
+                        <button type="button"
+                                class="btn outline open-camera"
+                                data-target="{{ form.file.id_for_label }}">
+                            Use Camera
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            {% endfor %}
+
+            <button name="add_more_documents" value="1" class="btn outline">+ Add More Document</button>
+
+            <div class="footer-nav">
+                {% if is_existing_customer %}
+                    <a href="{% url 'gold_loan:add_loan_step2' customer.id %}" class="btn outline">← Back</a>
+                {% else %}
+                    <a href="{% url 'gold_loan:loan_entry_step2' %}" class="btn outline">← Back</a>
+                {% endif %}
+
+                <button type="submit" class="btn">Continue →</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const selects = document.querySelectorAll(".doc-type-select");
+
+    selects.forEach(select => {
+        const container = select.closest(".item-box");
+        const otherField = container.querySelector(".other-doc-field");
+
+        function toggleOtherField() {
+            otherField.style.display =
+                select.value === "__other__" ? "block" : "none";
+        }
+
+        select.addEventListener("change", toggleOtherField);
+        toggleOtherField();
+    });
+});
+</script>
+
+{% endblock %}

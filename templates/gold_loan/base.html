@@ -1,0 +1,277 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gold Loan{% endblock %}</title>
+
+    <!-- FONTS & ICONS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+
+    <!-- GLOBAL CSS -->
+    <link rel="stylesheet" href="{% static 'css/ga-layout.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+    
+<link rel="stylesheet" href="{% static 'css/new/base.css' %}">
+
+
+    
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+<div class="ga-container">
+
+    <!-- SIDEBAR -->
+    <aside class="ga-sidebar" id="gaSidebar">
+
+        <div class="ga-sidebar-header">
+            <span class="material-icons-outlined ga-logo">analytics</span>
+            <span class="ga-property-name">Gold Loan</span>
+        </div>
+
+        <nav class="ga-nav">
+
+            <a class="ga-nav-item" href="{% url 'gold_loan:home' %}">
+                <span class="material-icons-outlined">home</span>
+                <span>Home</span>
+            </a>
+
+            <div class="ga-nav-section">Loan Module</div>
+
+            <a class="ga-nav-item" href="{% url 'gold_loan:loan_entry_step1' %}">
+                <span class="material-icons-outlined">add_circle</span>
+                <span>New Loan</span>
+            </a>
+
+            <a class="ga-nav-item" href="{% url 'gold_loan:dashboard' %}">
+                <span class="material-icons-outlined">article</span>
+                <span>All Loans</span>
+            </a>
+
+            <a class="ga-nav-item" href="{% url 'gold_loan:customers' %}">
+                <span class="material-icons-outlined">group</span>
+                <span>Customers</span>
+            </a>
+
+
+            <div class="ga-nav-section">System</div>
+
+            <a class="ga-nav-item" href="#">
+                <span class="material-icons-outlined">notifications</span>
+                <span>Notifications</span>
+            </a>
+
+            <a class="ga-nav-item" href="#">
+                <span class="material-icons-outlined">settings</span>
+                <span>Admin Settings</span>
+            </a>
+
+        </nav>
+    </aside>
+
+
+    <!-- MAIN AREA -->
+    <div class="ga-main">
+
+        <!-- HEADER -->
+        <header class="ga-header">
+            {% comment %} <span id="sidebarToggle" class="material-icons-outlined">menu</span> {% endcomment %}
+
+            <div class="search-wrapper">
+                <input 
+                    type="text" 
+                    id="customerSearch"
+                    class="ga-search"
+                    placeholder="Search loans, customers…"
+                    autocomplete="off"
+                >
+                <div id="searchSuggestions" class="suggest-box"></div>
+            </div>
+
+            <div class="ga-header-actions">
+                <span class="material-icons-outlined">notifications</span>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <main class="ga-content">
+            {% block content %}{% endblock %}
+        </main>
+
+    </div>
+</div>
+
+<script>
+    feather.replace();
+
+    // Sidebar Toggle
+    document.getElementById("sidebarToggle").addEventListener("click", () => {
+        document.getElementById("gaSidebar").classList.toggle("collapsed");
+    });
+
+    // Highlight Sidebar Active Link
+    const currentURL = window.location.pathname;
+    document.querySelectorAll(".ga-nav-item").forEach(item => {
+        if (item.getAttribute("href") === currentURL) {
+            item.classList.add("active");
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("customerSearch");
+        const suggestionBox = document.getElementById("searchSuggestions");
+
+        if (!searchInput || !suggestionBox) {
+            console.warn("Search elements not found in DOM.");
+            return;
+        }
+
+        // Use Django URL (rendered server-side)
+        const SEARCH_URL = "{% url 'gold_loan:search_customers' %}";
+
+        let timeout = null;
+        let activeIndex = -1;
+
+        searchInput.addEventListener("input", function () {
+
+            const query = this.value.trim();
+
+            clearTimeout(timeout);
+            activeIndex = -1;
+
+            if (query.length < 1) {
+                suggestionBox.style.display = "none";
+                suggestionBox.innerHTML = "";
+                return;
+            }
+
+            // Debounce
+            timeout = setTimeout(() => {
+
+                // fetch with credentials so session cookie is included
+                fetch(`${SEARCH_URL}?q=${encodeURIComponent(query)}`, {
+                    method: "GET",
+                    credentials: "same-origin"   // send cookies for session/login
+                })
+                .then(async res => {
+                    // If server redirected to login page, we'll get HTML back.
+                    const contentType = res.headers.get("content-type") || "";
+                    if (!res.ok) {
+                        // non-2xx status
+                        const text = await res.text();
+                        console.error("Search endpoint returned non-ok status:", res.status, text);
+                        throw new Error("Server error");
+                    }
+
+                    if (!contentType.includes("application/json")) {
+                        // probably an HTML login page (redirected). Dump first 500 chars for debugging.
+                        const text = await res.text();
+                        console.warn("Search response isn't JSON. First 500 chars:\n", text.slice(0, 500));
+                        // If you want, detect login by checking for 'login' form identifier in the HTML:
+                        if (text.toLowerCase().includes("login") || text.toLowerCase().includes("csrfmiddlewaretoken")) {
+                            throw new Error("auth_required");
+                        }
+                        throw new Error("invalid_json");
+                    }
+
+                    return res.json();
+                })
+                .then(data => {
+                    const results = data.results || [];
+
+                    if (results.length === 0) {
+                        suggestionBox.innerHTML =
+                            `<div class="suggest-item empty">No matching customers found</div>`;
+                    } else {
+                        suggestionBox.innerHTML = results.map(c => `
+                            <div class="suggest-item" data-url="${escapeHtml(c.url)}">
+                                <div class="suggest-title">${escapeHtml(c.name)}</div>
+                                <div class="suggest-sub">📱 ${escapeHtml(c.mobile_number)}</div>
+                            </div>
+                        `).join("");
+                    }
+
+
+                    suggestionBox.style.display = "block";
+
+                    // add click listeners
+                    suggestionBox.querySelectorAll(".suggest-item").forEach(item => {
+                        item.addEventListener("click", () => {
+                            window.location.href = item.dataset.url;
+                        });
+                    });
+                })
+                .catch(err => {
+                    console.error("Search error:", err);
+                    if (err.message === "auth_required") {
+                        suggestionBox.innerHTML =
+                            `<div class='suggest-item empty'>Please log in to search (session expired).</div>`;
+                    } else {
+                        suggestionBox.innerHTML =
+                            `<div class='suggest-item empty'>Search error — try again (check console).</div>`;
+                    }
+                    suggestionBox.style.display = "block";
+                });
+
+            }, 250);
+
+        });
+
+        // Hide on outside click
+        document.addEventListener("click", function (e) {
+            if (!searchInput.contains(e.target) && !suggestionBox.contains(e.target)) {
+                suggestionBox.style.display = "none";
+            }
+        });
+
+        // Keyboard navigation
+        searchInput.addEventListener("keydown", function (e) {
+            const items = suggestionBox.querySelectorAll(".suggest-item");
+            if (items.length === 0) return;
+
+            if (e.key === "ArrowDown") {
+                activeIndex = (activeIndex + 1) % items.length;
+                updateActive(items);
+                e.preventDefault();
+            } else if (e.key === "ArrowUp") {
+                activeIndex = (activeIndex - 1 + items.length) % items.length;
+                updateActive(items);
+                e.preventDefault();
+            } else if (e.key === "Enter") {
+                if (activeIndex >= 0 && items[activeIndex]) {
+                    e.preventDefault();
+                    items[activeIndex].click();
+                } // else allow normal form submit if you later add a form
+            }
+        });
+
+        function updateActive(items) {
+            items.forEach(i => i.classList.remove("active-item"));
+            if (items[activeIndex]) items[activeIndex].classList.add("active-item");
+        }
+
+        // small helper to avoid XSS when inserting names from server
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+    });
+</script>
+
+
+
+{% block scripts %}{% endblock %}
+
+</body>
+</html>

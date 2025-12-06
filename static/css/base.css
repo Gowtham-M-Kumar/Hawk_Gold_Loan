@@ -1,0 +1,172 @@
+.ga-sidebar {
+            width: 240px;
+            background: #ffffff;
+            border-right: 1px solid #e5e7eb;
+            padding: 20px 0;
+            transition: all 0.25s ease;
+            box-shadow: 2px 0 6px rgba(0,0,0,0.05);
+        }
+
+        .ga-sidebar-header {
+            padding: 0 22px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .ga-logo {
+            font-size: 30px;
+            color: #1e3a8a;
+        }
+
+        .ga-property-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a8a;
+        }
+
+        /* Nav Items */
+        .ga-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 20px;
+            text-decoration: none;
+            color: #374151;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            position: relative;
+            border-radius: 8px;
+            margin: 4px 10px;
+        }
+
+        .ga-nav-item:hover {
+            background: linear-gradient(135deg, #e0e7ff, #f0f5ff);
+            color: #1e3a8a;
+            transform: translateX(4px);
+        }
+
+        .ga-nav-item:hover .material-icons-outlined {
+            color: #1e3a8a;
+        }
+
+        .ga-nav-item.active {
+            background: linear-gradient(135deg, #2563eb20, #1e3a8a20);
+            border-left: 4px solid #1e3a8a;
+            color: #1e3a8a;
+        }
+
+        .ga-nav-section {
+            font-size: 12px;
+            padding: 8px 22px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-top: 12px;
+            text-transform: uppercase;
+        }
+
+        /************************************
+         HEADER
+        *************************************/
+        .ga-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .ga-header-actions span {
+            font-size: 22px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .ga-header-actions span:hover {
+            color: #1e3a8a;
+            transform: scale(1.1);
+        }
+
+        /************************************
+         SEARCH BAR
+        *************************************/
+        .ga-search {
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid #d1d5db;
+            width: 260px;
+            transition: 0.2s ease;
+        }
+
+        .ga-search:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px #bfdbfe;
+            background: #f9fafb;
+        }
+
+        /************************************
+         SIDEBAR COLLAPSE
+        *************************************/
+        #sidebarToggle {
+            cursor: pointer;
+        }
+
+        .collapsed {
+            width: 70px !important;
+        }
+
+        .collapsed .ga-property-name {
+            display: none;
+        }
+
+        .collapsed .ga-nav-item span:nth-child(2) {
+            display: none;
+        }
+
+        /* Suggestion Box Style (Google-like) */
+.suggest-box {
+    position: absolute;
+    top: 38px;
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.suggest-item {
+    display: block;
+    padding: 12px 16px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #222;
+    border-bottom: 1px solid #f2f2f2;
+}
+
+.suggest-item:hover {
+    background: #f8f8f8;
+}
+
+.suggest-title {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.suggest-sub {
+    color: #666;
+    font-size: 13px;
+}
+
+.suggest-empty {
+    padding: 12px 16px;
+    color: #999;
+    font-size: 14px;
+}

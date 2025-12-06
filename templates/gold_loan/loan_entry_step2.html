@@ -1,0 +1,137 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+<style>
+.item-row { border:1px solid #e5e7eb; padding:12px; border-radius:8px; margin-bottom:12px; background:#fff; }
+.preview-box { background:#fbfbfb; padding:12px; border-radius:8px; margin-top:8px; border:1px dashed #e5e7eb; }
+</style>
+{% endblock %}
+
+{% block title %}Loan — Step 2{% endblock %}
+
+{% block content %}
+<div class="entry-wrapper">
+
+    <div class="steps-header">
+        {% if is_existing_customer %}
+            <div class="step-tab active">STEP 1<br><span>Product</span></div>
+            <div class="step-tab">STEP 2<br><span>Documents</span></div>
+            <div class="step-tab">STEP 3<br><span>OTP</span></div>
+        {% else %}
+            <div class="step-tab">STEP 1<br><span>Personal</span></div>
+            <div class="step-tab active">STEP 2<br><span>Product</span></div>
+            <div class="step-tab">STEP 3<br><span>Documents</span></div>
+            <div class="step-tab">STEP 4<br><span>OTP</span></div>
+        {% endif %}
+    </div>
+
+    <div class="entry-card">
+        <h2 class="step-title">
+            {% if is_existing_customer %}Add Loan – Product Details{% else %}Product Details{% endif %}
+        </h2>
+
+        <p class="step-desc">Add gold items and loan details.</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if is_existing_customer %}
+                <input type="hidden" name="existing_customer" value="{{ customer.id }}">
+            {% endif %}
+
+            <div class="card" style="margin-top:16px;">
+                <h4>Gold items (upload at least 2 images per item)</h4>
+
+                {{ gold_formset.management_form }}
+
+                {% for form in gold_formset %}
+                <div class="item-row">
+                    {{ form.non_field_errors }}
+
+                    <div>{{ form.item_name.label_tag }} {{ form.item_name }}</div>
+                    <div>{{ form.carat_value.label_tag }} {{ form.carat_value }}</div>
+                    <div>{{ form.grams.label_tag }} {{ form.grams }}</div>
+                    <div>{{ form.description.label_tag }} {{ form.description }}</div>
+
+                    <div><label>Image 1 *</label> {{ form.image_1 }}</div>
+                    <div><label>Image 2 *</label> {{ form.image_2 }}</div>
+                    <div><label>Image 3</label> {{ form.image_3 }}</div>
+                    <div><label>Image 4</label> {{ form.image_4 }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="card">
+                <h4>Loan details</h4>
+
+                {% if loan_form.lot_no %}
+                    <div>{{ loan_form.lot_no.label_tag }} {{ loan_form.lot_no }}</div>
+                    <div>{{ loan_form.approved_net_grams.label_tag }} {{ loan_form.approved_net_grams }}</div>
+                    <div>{{ loan_form.price_per_gram.label_tag }} {{ loan_form.price_per_gram }}</div>
+                    <div>{{ loan_form.interest_rate.label_tag }} {{ loan_form.interest_rate }}</div>
+                    <div>{{ loan_form.interest_period_days.label_tag }} {{ loan_form.interest_period_days }}</div>
+                {% else %}
+                    <!-- FALLBACK -->
+                    {{ loan_form.as_p }}
+                {% endif %}
+            </div>
+
+            <div class="preview-box">
+                <strong>Preview calculations</strong>
+                <div style="display:flex;gap:16px;margin-top:8px;">
+                    <div>Daily interest: <span id="dailyVal">—</span></div>
+                    <div>Interest for <span id="daysVal">0</span> days: <span id="periodVal">—</span></div>
+                </div>
+            </div>
+
+            <div style="margin-top:18px;display:flex;gap:12px;justify-content:flex-end;">
+                {% if is_existing_customer %}
+                    <a href="{% url 'gold_loan:customer_loans' customer.id %}" class="btn btn-secondary">Back</a>
+                {% else %}
+                    <a href="{% url 'gold_loan:loan_entry_step1' %}" class="btn btn-secondary">Back</a>
+                {% endif %}
+
+                <button class="btn btn-primary" type="submit">Continue →</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+
+
+<script>
+function parseNum(v){ if(!v) return 0; v=v.toString().replace(/,/g,'').trim(); var n=parseFloat(v); return isNaN(n)?0:n;}
+function compute(){
+  var p=document.querySelector('[name="price_per_gram"]');
+  var g=document.querySelector('[name="approved_net_grams"]');
+  var rate=document.querySelector('[name="interest_rate"]');
+  var days=document.querySelector('[name="interest_period_days"]');
+  var principal=0;
+  if(p && g){
+    principal = parseNum(p.value) * parseNum(g.value);
+  }
+  var r = parseNum(rate ? rate.value : 0);
+  var d = parseInt(parseNum(days ? days.value : 0)) || 0;
+  var daily=0;
+  if(principal>0 && r>0){
+    daily = (principal * r) / (365 * 100);
+  }
+  var period = daily * d;
+  document.getElementById('dailyVal').innerText = daily ? "₹" + daily.toFixed(2) : "₹0.00";
+  document.getElementById('periodVal').innerText = period ? "₹" + period.toFixed(2) : "₹0.00";
+  document.getElementById('daysVal').innerText = d;
+}
+document.addEventListener('input', function(e){
+  if(e.target && ['price_per_gram','approved_net_grams','interest_rate','interest_period_days'].includes(e.target.name)){
+    compute();
+  }
+});
+window.addEventListener('load', compute);
+</script>
+{% endblock %}

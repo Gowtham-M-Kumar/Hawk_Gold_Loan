@@ -1,0 +1,5 @@
+/* Base styles for Gold Loan Management System */
+body { font-family: 'Inter', sans-serif; margin: 0; background: #f5f6f8; color: #1a1a1a; }
+main { padding: 32px; }
+.card { background: #fff; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(15,23,42,0.08); }
+a.button-link { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px; background: #0f172a; color: #fff; text-decoration: none; font-weight: 600; }
