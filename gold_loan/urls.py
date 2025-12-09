@@ -28,9 +28,16 @@ urlpatterns = [
     path('loan/<int:loan_id>/edit/', views.loan_edit, name='loan_edit'),
     path('loan/<int:loan_id>/close/', views.loan_close, name='loan_close'),
     
-    # ADD LOAN FOR EXISTING CUSTOMER
-    path("loan/existing/<int:customer_id>/step2/", views.add_loan_step2, name="add_loan_step2"),
-    path("loan/existing/<int:customer_id>/step3/", views.add_loan_step3, name="add_loan_step3"),
-    path("loan/existing/<int:customer_id>/step4/", views.add_loan_step4, name="add_loan_step4"),
+    path("customer/<int:customer_id>/loan/add/step1/", views.add_loan_step2, name="add_loan_step1"),
+    path("customer/<int:customer_id>/loan/add/step2/", views.add_loan_step3, name="add_loan_step2"),
+    path("customer/<int:customer_id>/loan/add/step3/", views.add_loan_step4, name="add_loan_step3"),
+    
+    #notifications
+    path("notifications/", views.notifications_list, name="notifications"),
+    
+    path("calculate_gold_value/", views.calculate_gold_value, name="calculate_gold_value"),
+
+
+
 
 ]

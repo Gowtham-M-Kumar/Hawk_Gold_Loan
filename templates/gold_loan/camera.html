@@ -1,0 +1,44 @@
+<!-- CAMERA MODAL INCLUDE -->
+<div id="cameraModal" class="camera-modal" aria-hidden="true" style="display:none;">
+  <div class="camera-modal-backdrop"></div>
+  <div class="camera-modal-panel" role="dialog" aria-modal="true">
+
+    <h3 style="margin:0 0 8px 0;">Take Photo</h3>
+
+    <video id="cameraVideo" autoplay playsinline style="
+      width:100%; 
+      height:auto; 
+      border-radius:8px;
+      background:#000;
+    "></video>
+
+    <canvas id="cameraCanvas" style="display:none;"></canvas>
+
+    <div style="display:flex; gap:8px; margin-top:8px; justify-content:flex-end;">
+      <button id="cameraCancelBtn" type="button" class="btn outline">Cancel</button>
+      <button id="cameraFlipBtn" type="button" class="btn outline">Flip</button>
+      <button id="cameraCaptureBtn" type="button" class="btn">Capture</button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+.camera-modal { 
+    position: fixed; 
+    inset: 0; 
+    z-index: 2000; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+}
+.camera-modal-backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.5); }
+.camera-modal-panel { 
+    position:relative; 
+    width:100%; 
+    max-width:420px; 
+    background:white; 
+    padding:14px; 
+    border-radius:10px; 
+}
+</style>

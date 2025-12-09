@@ -1,0 +1,130 @@
+{% extends "gold_loan/base.html" %}
+{% load static %}
+
+{% block head %}
+<style>
+
+h2 {
+    font-size: 26px;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.notif-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+.notif-item {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    transition: 0.2s;
+}
+
+.notif-item:hover {
+    background: #f7f8ff;
+    cursor: pointer;
+}
+
+.notif-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 12px;
+    border: 1px solid #ddd;
+}
+
+.notif-message {
+    flex-grow: 1;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.notif-time {
+    font-size: 12px;
+    color: #666;
+}
+
+.empty-text {
+    font-size: 14px;
+    color: #999;
+    margin-left: 8px;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+
+<h2>Notifications</h2>
+
+<!-- ===================== -->
+<!-- Recent Payments       -->
+<!-- ===================== -->
+<div class="notif-section-title">Recent Payments</div>
+
+{% with payment_list=notifications|dictsort:"created_at" %}
+{% if payment_list %}
+    {% for n in notifications %}
+        {% if n.type == "payment" %}
+        <a href="{% url 'gold_loan:customer_loans' n.customer.id %}">
+            <div class="notif-item">
+                <img src="{{ n.customer.photo.url|default:'/static/images/avatar.png' }}" class="notif-avatar">
+                <div class="notif-message">{{ n.message }}</div>
+                <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+            </div>
+        </a>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <p class="empty-text">No recent payments.</p>
+{% endif %}
+{% endwith %}
+
+<!-- ===================== -->
+<!-- New Loans             -->
+<!-- ===================== -->
+<div class="notif-section-title">New Loans</div>
+
+{% for n in notifications %}
+    {% if n.type == "new_loan" %}
+    <a href="{% url 'gold_loan:loan_detail' n.loan.id %}">
+        <div class="notif-item">
+            <img src="{{ n.customer.photo.url|default:'/static/images/avatar.png' }}" class="notif-avatar">
+            <div class="notif-message">{{ n.message }}</div>
+            <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+        </div>
+    </a>
+    {% endif %}
+{% empty %}
+<p class="empty-text">No new loans.</p>
+{% endfor %}
+
+<!-- ===================== -->
+<!-- Overdue Loans         -->
+<!-- ===================== -->
+<div class="notif-section-title">Overdue Loans</div>
+
+{% for n in notifications %}
+    {% if n.type == "overdue" %}
+    <a href="{% url 'gold_loan:customer_loans' n.customer.id %}">
+        <div class="notif-item">
+            <img src="{{ n.customer.photo.url|default:'/static/images/avatar.png' }}" class="notif-avatar">
+            <div class="notif-message">{{ n.message }}</div>
+            <div class="notif-time">{{ n.created_at|timesince }} ago</div>
+        </div>
+    </a>
+    {% endif %}
+{% empty %}
+<p class="empty-text">No overdue customers.</p>
+{% endfor %}
+
+{% endblock %}

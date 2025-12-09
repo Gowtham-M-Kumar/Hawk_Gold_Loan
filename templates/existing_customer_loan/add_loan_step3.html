@@ -1,0 +1,85 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+{% endblock %}
+
+{% block title %}Loan — Step 3 (OTP Verification){% endblock %}
+
+{% block content %}
+
+<div class="entry-wrapper">
+
+    <div class="steps-header">
+        <div class="step-tab">STEP 1<br><span>Product</span></div>
+        <div class="step-tab">STEP 2<br><span>Documents</span></div>
+        <div class="step-tab active">STEP 3<br><span>OTP</span></div>
+    </div>
+
+    <div class="entry-card">
+
+        <h2 class="step-title">Verify with OTP</h2>
+        <p class="step-desc">Enter the OTP sent to the customer’s mobile number.</p>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <div>
+                    <label>Phone Number *</label>
+                    {{ phone_form.phone_number }}
+                </div>
+
+                <div>
+                    <label>Enter OTP</label>
+                    <input id="otp_input" type="text" maxlength="4" placeholder="1234" class="form-control">
+                </div>
+            </div>
+
+            <p id="otp_message" style="margin-top:10px; font-weight:600;"></p>
+
+            <div style="margin-top:20px; display:flex; justify-content:flex-end; gap:12px;">
+                <a href="{% url 'gold_loan:add_loan_step2' customer.id %}" class="btn btn-secondary">Back</a>
+                <button type="button" id="sendOtpBtn" class="btn outline">Send OTP</button>
+                <button type="submit" id="verifyOtpBtn" class="btn btn-primary" disabled>Verify & Submit Loan</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+let generatedOtp = null;
+
+function generateOTP() {
+    generatedOtp = Math.floor(1000 + Math.random() * 9000);
+}
+
+document.getElementById("sendOtpBtn").addEventListener("click", function () {
+    generateOTP();
+    document.getElementById("otp_input").value = generatedOtp;
+    document.getElementById("otp_message").innerHTML = "OTP generated.";
+    document.getElementById("otp_message").style.color = "green";
+    document.getElementById("verifyOtpBtn").disabled = false;
+});
+
+document.getElementById("verifyOtpBtn").addEventListener("click", function (e) {
+    const userOtp = document.getElementById("otp_input").value;
+
+    if (userOtp == generatedOtp) {
+        document.getElementById("otp_message").innerHTML = "OTP Verified! Creating loan…";
+        document.getElementById("otp_message").style.color = "green";
+    } else {
+        e.preventDefault();
+        document.getElementById("otp_message").innerHTML = "Invalid OTP.";
+        document.getElementById("otp_message").style.color = "red";
+    }
+});
+</script>
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
+
+{% endblock %}

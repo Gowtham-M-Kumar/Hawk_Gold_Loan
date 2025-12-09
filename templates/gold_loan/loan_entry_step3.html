@@ -10,6 +10,7 @@
 {% block title %}Loan — Step 3{% endblock %}
 
 {% block content %}
+
 <div class="entry-wrapper">
 
     <div class="steps-header">
@@ -40,36 +41,44 @@
 
             {{ document_formset.management_form }}
 
-            {% for form in document_formset %}
-            <div class="item-box">
-                {{ form.non_field_errors }}
+            <!-- DOCUMENT LIST -->
+            <div id="documentList">
+                {% for form in document_formset %}
+                <div class="item-box doc-item">
 
-                <div>
-                    <label>Document Type *</label>
-                    {{ form.document_type }}
-                </div>
+                    {{ form.non_field_errors }}
 
-                <div class="other-doc-field" style="display:none;">
-                    <label>Enter Document Name *</label>
-                    {{ form.other_document_name }}
-                </div>
-
-                <div>
-                    <label>File Upload *</label>
-                    <div class="file-input-wrapper">
-                        {{ form.file }}
-                        <button type="button"
-                                class="btn outline open-camera"
-                                data-target="{{ form.file.id_for_label }}">
-                            Use Camera
-                        </button>
+                    <div>
+                        <label>Document Type *</label>
+                        {{ form.document_type }}
                     </div>
+
+                    <div class="other-doc-field" style="display:none;">
+                        <label>Enter Document Name *</label>
+                        {{ form.other_document_name }}
+                    </div>
+
+                    <div>
+                        <label>Upload Document *</label>
+                        <div class="file-input-wrapper">
+                            {{ form.file }}
+
+                            <!-- CAMERA BUTTON -->
+                            <button type="button" class="btn outline open-camera"
+                                data-target="{{ customer_form.photo.id_for_label }}">
+                            Use Camera
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
-
+                {% endfor %}
             </div>
-            {% endfor %}
 
-            <button name="add_more_documents" value="1" class="btn outline">+ Add More Document</button>
+            <!-- ADD MORE DOCUMENT (JS only, not submit) -->
+            <button type="button" id="addMoreDocs" class="btn outline">
+                + Add More Document
+            </button>
 
             <div class="footer-nav">
                 {% if is_existing_customer %}
@@ -77,32 +86,92 @@
                 {% else %}
                     <a href="{% url 'gold_loan:loan_entry_step2' %}" class="btn outline">← Back</a>
                 {% endif %}
-
                 <button type="submit" class="btn">Continue →</button>
             </div>
+
         </form>
+
     </div>
 </div>
 
-
+<!-- =============================== -->
+<!-- JAVASCRIPT SECTION -->
+<!-- =============================== -->
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-    const selects = document.querySelectorAll(".doc-type-select");
 
-    selects.forEach(select => {
-        const container = select.closest(".item-box");
-        const otherField = container.querySelector(".other-doc-field");
+    const list = document.getElementById("documentList");
+    const addBtn = document.getElementById("addMoreDocs");
+    let totalForms = document.getElementById("id_documents-TOTAL_FORMS");
 
-        function toggleOtherField() {
-            otherField.style.display =
-                select.value === "__other__" ? "block" : "none";
-        }
+    // ---------------------------
+    // Add More Document (Clone)
+    // ---------------------------
+    addBtn.addEventListener("click", function () {
 
-        select.addEventListener("change", toggleOtherField);
-        toggleOtherField();
+        const formCount = parseInt(totalForms.value);
+        const firstFormHTML = list.children[0].outerHTML;
+
+        // Replace index in form fields
+        const newFormHTML = firstFormHTML.replace(/documents-(\d)+/g, `documents-${formCount}`);
+
+        list.insertAdjacentHTML("beforeend", newFormHTML);
+
+        totalForms.value = formCount + 1;
+
+        attachOtherFieldLogic();
+        attachCameraLogic();
     });
+
+    // ---------------------------
+    // Document type "Other" toggle
+    // ---------------------------
+    function attachOtherFieldLogic() {
+        document.querySelectorAll(".doc-item").forEach(box => {
+            const select = box.querySelector("select");
+            const otherField = box.querySelector(".other-doc-field");
+
+            if (!select) return;
+
+            function toggleField() {
+                otherField.style.display = (select.value === "__other__") ? "block" : "none";
+            }
+
+            select.addEventListener("change", toggleField);
+            toggleField();
+        });
+    }
+
+    attachOtherFieldLogic();
+
+    // ---------------------------
+    // CAMERA CAPTURE LOGIC
+    // ---------------------------
+    function attachCameraLogic() {
+        document.querySelectorAll(".open-camera").forEach(button => {
+            button.onclick = function () {
+                const targetId = button.getAttribute("data-target-id");
+                const fileInput = document.getElementById(targetId);
+
+                if (!fileInput) {
+                    alert("Camera target not found.");
+                    return;
+                }
+
+                fileInput.setAttribute("capture", "camera");
+                fileInput.click();
+            };
+        });
+    }
+
+    attachCameraLogic();
+
 });
 </script>
 
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
+
 {% endblock %}
+

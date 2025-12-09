@@ -1,66 +1,87 @@
-let stream = null;
-let currentInputField = null;
+(function () {
+  let stream = null;
+  let facingMode = "environment";
+  let currentTargetInputId = null;
 
-const modal = document.getElementById("cameraModal");
-const video = document.getElementById("cameraPreview");
-const canvas = document.getElementById("cameraCanvas");
-const captureBtn = document.getElementById("captureBtn");
-const useBtn = document.getElementById("useBtn");
-const closeBtn = document.getElementById("closeCameraBtn");
+  const modal = document.getElementById("cameraModal");
+  const video = document.getElementById("cameraVideo");
+  const canvas = document.getElementById("cameraCanvas");
+  const captureBtn = document.getElementById("cameraCaptureBtn");
+  const cancelBtn = document.getElementById("cameraCancelBtn");
+  const flipBtn = document.getElementById("cameraFlipBtn");
 
-// OPEN CAMERA
-document.querySelectorAll(".open-camera").forEach(btn => {
-    btn.addEventListener("click", async () => {
-        currentInputField = document.querySelector(`input[name="${btn.dataset.target}"]`);
+  async function openCameraForInput(inputId) {
+    currentTargetInputId = inputId;
+    modal.style.display = "flex";
 
-        modal.style.display = "flex";
+    stopStream();
 
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "environment" },
-            audio: false
-        });
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: facingMode } },
+        audio: false
+      });
 
-        video.srcObject = stream;
+      video.srcObject = stream;
+      await video.play();
+    } catch (err) {
+      alert("Camera access failed.");
+      closeModal();
+    }
+  }
 
-        useBtn.style.display = "none";
-        captureBtn.style.display = "inline-block";
-    });
-});
+  function stopStream() {
+    if (stream) stream.getTracks().forEach(t => t.stop());
+  }
 
-// CAPTURE IMAGE
-captureBtn.addEventListener("click", () => {
+  function closeModal() {
+    stopStream();
+    modal.style.display = "none";
+    currentTargetInputId = null;
+  }
+
+  async function capturePhoto() {
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
     const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0);
 
-    useBtn.style.display = "inline-block";
-});
+    const blob = await new Promise(resolve =>
+      canvas.toBlob(resolve, "image/jpeg", 0.9)
+    );
 
-// USE PHOTO
-useBtn.addEventListener("click", async () => {
-    canvas.toBlob(blob => {
-        const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
-
-        const dt = new DataTransfer();
-        dt.items.add(file);
-
-        currentInputField.files = dt.files;
-
-        alert("Photo added successfully!");
-
-        closeCamera();
+    const file = new File([blob], `capture_${Date.now()}.jpg`, {
+      type: "image/jpeg"
     });
-});
 
-// CLOSE CAMERA
-closeBtn.addEventListener("click", closeCamera);
+    const input = document.getElementById(currentTargetInputId);
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
 
-function closeCamera() {
-    modal.style.display = "none";
+    closeModal();
+  }
 
-    if (stream) {
-        stream.getTracks().forEach(t => t.stop());
-    }
-}
+  function bindCameraButtons() {
+    document.querySelectorAll(".open-camera").forEach(btn => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "1";
+
+      btn.addEventListener("click", () => {
+        const inputId = btn.dataset.target;
+        openCameraForInput(inputId);
+      });
+    });
+  }
+
+  flipBtn.addEventListener("click", () => {
+    facingMode = facingMode === "user" ? "environment" : "user";
+    if (currentTargetInputId) openCameraForInput(currentTargetInputId);
+  });
+
+  captureBtn.addEventListener("click", capturePhoto);
+  cancelBtn.addEventListener("click", closeModal);
+
+  document.addEventListener("DOMContentLoaded", bindCameraButtons);
+})();

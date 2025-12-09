@@ -1,6 +1,6 @@
 # gold_loan/forms.py
 from django import forms
-from django.forms import BaseFormSet, formset_factory
+from django.forms import BaseFormSet, formset_factory, modelformset_factory
 from decimal import Decimal
 
 from .models import (
@@ -13,6 +13,16 @@ from .models import (
     LoanGoldItemImage,
     LoanPayment,
 )
+
+DOCUMENT_TYPES = [
+    ("aadhaar", "Aadhaar Card"),
+    ("pan", "PAN Card"),
+    ("voter", "Voter ID"),
+    ("license", "Driving License"),
+    ("passport", "Passport"),
+    ("__other__", "Other Document"),
+]
+
 
 
 class RequiredFormSet(BaseFormSet):
@@ -122,6 +132,12 @@ class LoanDocumentForm(forms.ModelForm):
     )
 
     class Meta:
+        
+        document_type = forms.ChoiceField(
+        choices=DOCUMENT_TYPES,
+        widget=forms.Select(attrs={"class": "doc-type-select"})
+    )
+        
         model = LoanDocument
         fields = ["document_type", "other_document_name", "file"]
 
@@ -247,8 +263,11 @@ DocumentFormSet = formset_factory(
 GoldItemFormSet = formset_factory(
     LoanGoldItemForm,
     formset=RequiredFormSet,
-    extra=1
+    extra=1,   # ensures at least one blank form
+    max_num=1  # makes sure only 1 product entry is allowed
 )
+
+
 
 PaymentFormSet = formset_factory(PaymentForm, extra=1)
 

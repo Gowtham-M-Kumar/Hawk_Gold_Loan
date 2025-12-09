@@ -1,0 +1,184 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+.accordion-item { border:1px solid #e5e7eb; border-radius:8px; margin-bottom:12px; background:#fff; }
+.preview-box { background:#fbfbfb; padding:12px; border-radius:8px; margin-top:8px; border:1px dashed #e5e7eb; }
+</style>
+{% endblock %}
+
+{% block title %}Loan — Step 1 (Product){% endblock %}
+
+{% block content %}
+<div class="entry-wrapper">
+
+    <div class="steps-header">
+        <div class="step-tab active">STEP 1<br><span>Product</span></div>
+        <div class="step-tab">STEP 2<br><span>Documents</span></div>
+        <div class="step-tab">STEP 3<br><span>OTP</span></div>
+    </div>
+
+    <div class="entry-card">
+        <h2 class="step-title">Add Loan – Product Details</h2>
+        <p class="step-desc">Add gold items and loan details.</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {{ gold_formset.management_form }}
+
+            <div class="card" style="margin-top:16px;">
+                <h4>Gold Items</h4>
+
+                <div class="accordion" id="goldItemsAccordion">
+
+                    {% for form in gold_formset %}
+                    <div class="accordion-item">
+
+                        
+
+                        <div id="collapse{{ forloop.counter }}"
+                             class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                             data-bs-parent="#goldItemsAccordion">
+
+                            <div class="accordion-body">
+
+                                {{ form.non_field_errors }}
+
+                                <div>{{ form.item_name.label_tag }} {{ form.item_name }}</div>
+                                <div>{{ form.carat_value.label_tag }} {{ form.carat_value }}</div>
+                                <div>{{ form.grams.label_tag }} {{ form.grams }}</div>
+                                <div>{{ form.description.label_tag }} {{ form.description }}</div>
+
+                                <hr>
+
+                                <!-- Image 1 -->
+                                <div>
+                                    <label>Image 1 *</label>
+                                    <div class="file-input-wrapper">
+                                        {{ form.image_1 }}
+                                        <button type="button"
+                                                class="btn outline open-camera"
+                                                data-target="{{ form.image_1.id_for_label }}">
+                                            Use Camera
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Image 2 -->
+                                <div>
+                                    <label>Image 2 *</label>
+                                    <div class="file-input-wrapper">
+                                        {{ form.image_2 }}
+                                        <button type="button"
+                                                class="btn outline open-camera"
+                                                data-target="{{ form.image_2.id_for_label }}">
+                                            Use Camera
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Image 3 -->
+                                <div>
+                                    <label>Image 3</label>
+                                    <div class="file-input-wrapper">
+                                        {{ form.image_3 }}
+                                        <button type="button"
+                                                class="btn outline open-camera"
+                                                data-target="{{ form.image_3.id_for_label }}">
+                                            Use Camera
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Image 4 -->
+                                <div>
+                                    <label>Image 4</label>
+                                    <div class="file-input-wrapper">
+                                        {{ form.image_4 }}
+                                        <button type="button"
+                                                class="btn outline open-camera"
+                                                data-target="{{ form.image_4.id_for_label }}">
+                                            Use Camera
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {% if gold_formset.can_delete %}
+                                <div style="margin-top:10px;">
+                                    {{ form.DELETE }} <label>Remove item</label>
+                                </div>
+                                {% endif %}
+                            </div>
+
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>Loan Details</h4>
+
+                <div>{{ loan_form.lot_no.label_tag }} {{ loan_form.lot_no }}</div>
+                <div>{{ loan_form.approved_net_grams.label_tag }} {{ loan_form.approved_net_grams }}</div>
+                <div>{{ loan_form.price_per_gram.label_tag }} {{ loan_form.price_per_gram }}</div>
+                <div>{{ loan_form.interest_rate.label_tag }} {{ loan_form.interest_rate }}</div>
+                <div>{{ loan_form.interest_period_days.label_tag }} {{ loan_form.interest_period_days }}</div>
+            </div>
+
+            <div class="preview-box">
+                <strong>Preview Calculations</strong>
+                <div style="display:flex; gap:16px; margin-top:8px;">
+                    <div>Daily interest: <span id="dailyVal">—</span></div>
+                    {% comment %} <div>Interest for <span id="daysVal">0</span> days:
+                        <span id="periodVal">—</span>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+
+            <div style="margin-top:18px; display:flex; justify-content:flex-end; gap:12px;">
+                <a href="{% url 'gold_loan:customer_loans' customer.id %}" class="btn btn-secondary">Back</a>
+                <button type="submit" class="btn btn-primary">Continue →</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function parseNum(v){ if(!v) return 0; return parseFloat(v.toString().replace(/,/g,'')) || 0; }
+
+function compute(){
+  let p = document.querySelector('[name="price_per_gram"]');
+  let g = document.querySelector('[name="approved_net_grams"]');
+  let r = document.querySelector('[name="interest_rate"]');
+  let d = document.querySelector('[name="interest_period_days"]');
+
+  let principal = parseNum(p?.value) * parseNum(g?.value);
+  let rate = parseNum(r?.value);
+  let days = parseNum(d?.value);
+
+  let daily = (principal * rate) / (365 * 100);
+  let period = daily * days;
+
+  document.getElementById("dailyVal").innerText = "₹" + daily.toFixed(2);
+  document.getElementById("periodVal").innerText = "₹" + period.toFixed(2);
+  document.getElementById("daysVal").innerText = days;
+}
+
+document.addEventListener('input', compute);
+window.addEventListener('load', compute);
+</script>
+
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
+
+
+{% endblock %}

@@ -460,3 +460,24 @@ class GoldRate(models.Model):
 
     def __str__(self):
         return f"{self.carat}K - ₹{self.rate_per_gram}"
+
+
+class Notification(models.Model):
+    
+    TYPE_PAYMENT = "payment"
+    TYPE_NEW_LOAN = "new_loan"
+    TYPE_OVERDUE = "overdue"
+
+    TYPE_CHOICES = [
+        (TYPE_PAYMENT, "Payment"),
+        (TYPE_NEW_LOAN, "New Loan"),
+        (TYPE_OVERDUE, "Overdue"),
+    ]
+
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE, null=True, blank=True)
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    is_read = models.BooleanField(default=False)

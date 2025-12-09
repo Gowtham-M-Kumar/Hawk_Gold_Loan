@@ -106,6 +106,17 @@
 
 
 {% block content %}
+
+<!-- Django messages → passed to base.html to trigger popup -->
+{% if messages %}
+<ul class="messages" style="display:none;">
+    {% for message in messages %}
+        <li class="django-message">{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+
 <div class="payment-card">
     <div class="summary-title">Loan Payment</div>
 
@@ -131,10 +142,12 @@
     </div>
 
     <div class="summary-row">
-        <span>Daily Interest </span>
+        <span>Daily Interest</span>
         <span class="value">₹ {{ daily_interest }}</span>
     </div>
-<div class="details-heading">Totals</div>
+
+    <div class="details-heading">Totals</div>
+
     <div class="summary-row">
         <span>Total Closing Amount</span>
         <span class="value">₹ {{ closing_amount }}</span>
@@ -144,12 +157,6 @@
         <span>Total Paid Till Now</span>
         <span class="value">₹ {{ total_paid }}</span>
     </div>
-
-    {% comment %} <div class="summary-row">
-        <span>Pending Amount (Full Loan)</span>
-        <span class="value">₹ {{ closing_amount }}</span>
-    </div> {% endcomment %}
-
 
     <!-- DETAILS TOGGLE -->
     <div class="toggle-details" onclick="toggleDetails()">View Detailed Breakdown ▼</div>
@@ -168,8 +175,6 @@
         <div class="summary-row"><span>Principal Paid</span><span class="value">₹ {{ total_principal_paid }}</span></div>
         <div class="summary-row"><span>Principal Remaining</span><span class="value">₹ {{ remaining_principal }}</span></div>
 
-        
-        
     </div>
 
     <hr style="margin: 20px 0;">
@@ -206,22 +211,23 @@
     </form>
 </div>
 
+
 <script>
-    function toggleDetails() {
-        const box = document.getElementById("detailsBox");
-        box.style.display = box.style.display === "block" ? "none" : "block";
-    }
+function toggleDetails() {
+    const box = document.getElementById("detailsBox");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
 
-    const inputAmount = document.getElementById("payment_amount");
-    const remainingField = document.getElementById("remaining_balance");
-    const closingAmount = parseFloat("{{ closing_amount }}");
+const inputAmount = document.getElementById("payment_amount");
+const remainingField = document.getElementById("remaining_balance");
+const closingAmount = parseFloat("{{ closing_amount }}");
 
-    inputAmount.addEventListener("input", () => {
-        let pay = parseFloat(inputAmount.value) || 0;
-        let remain = closingAmount - pay;
-        if (remain < 0) remain = 0;
-        remainingField.textContent = remain.toFixed(2);
-    });
+inputAmount.addEventListener("input", () => {
+    let pay = parseFloat(inputAmount.value) || 0;
+    let remain = closingAmount - pay;
+    if (remain < 0) remain = 0;
+    remainingField.textContent = remain.toFixed(2);
+});
 </script>
 
 {% endblock %}

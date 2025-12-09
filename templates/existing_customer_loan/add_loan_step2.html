@@ -1,0 +1,166 @@
+{% extends 'gold_loan/base.html' %}
+{% load static %}
+
+{% block head %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+{% endblock %}
+
+{% block title %}Loan — Step 2 (Documents){% endblock %}
+
+{% block content %}
+<div class="entry-wrapper">
+
+    <div class="steps-header">
+        <div class="step-tab">STEP 1<br><span>Product</span></div>
+        <div class="step-tab active">STEP 2<br><span>Documents</span></div>
+        <div class="step-tab">STEP 3<br><span>OTP</span></div>
+    </div>
+
+    <div class="entry-card">
+        <h2 class="step-title">Loan Documents</h2>
+        <p class="step-desc">Upload necessary documents for this loan.</p>
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {{ document_formset.management_form }}
+
+            <!-- DOCUMENT FORMS WRAPPER -->
+            <div id="documentForms">
+                {% for form in document_formset %}
+                <div class="card doc-item" style="margin-bottom:18px; padding:18px; border-radius:12px;">
+
+                    {{ form.non_field_errors }}
+
+                    <!-- Header -->
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h4 style="margin:0;">Document {{ forloop.counter }}</h4>
+
+                        {% if document_formset.can_delete %}
+                        <button type="button" class="btn btn-danger-outline remove-doc" 
+                                style="font-size:12px; padding:4px 8px;">
+                            Remove
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Document Type -->
+                    <div style="margin-top:10px;">
+                        <label>Document type:</label>
+                        {{ form.document_type }}
+                    </div>
+
+                    <!-- OTHER DOC NAME -->
+                    <div class="other-doc-field" style="display:none; margin-top:10px;">
+                        {{ form.other_document_name.label_tag }}
+                        {{ form.other_document_name }}
+                    </div>
+
+                    <!-- File Upload -->
+                    <!-- File Upload with Camera -->
+                    <div style="margin-top:10px;">
+                        {{ form.file.label_tag }}
+
+                        <div class="file-input-wrapper">
+                            {{ form.file }}
+
+                            <button type="button"
+                                    class="btn outline open-camera"
+                                    data-target="{{ form.file.id_for_label }}">
+                                Use Camera
+                            </button>
+                        </div>
+                    </div>
+
+
+                    {{ form.DELETE }}
+
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- ADD MORE DOCUMENT BUTTON -->
+            <button type="button" id="addMoreDocsBtn" class="btn btn-secondary" 
+                    style="margin-bottom:20px;">
+                + Add Another Document
+            </button>
+
+            <!-- Navigation Buttons -->
+            <div style="display:flex; justify-content:flex-end; gap:12px;">
+                <a href="{% url 'gold_loan:add_loan_step1' customer.id %}" class="btn btn-secondary">Back</a>
+                <button class="btn btn-primary">Continue →</button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<!-- JAVASCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const docContainer = document.getElementById("documentForms");
+    const addBtn = document.getElementById("addMoreDocsBtn");
+
+    // Correct TOTAL_FORMS reference using prefix="documents"
+    let totalForms = document.getElementById("id_documents-TOTAL_FORMS");
+
+    addBtn.addEventListener("click", function () {
+
+    let formIndex = parseInt(totalForms.value);
+
+    let newFormHtml = docContainer.children[0].outerHTML.replace(
+        /documents-(\d)+/g,
+        `documents-${formIndex}`
+    );
+
+    docContainer.insertAdjacentHTML("beforeend", newFormHtml);
+
+    totalForms.value = formIndex + 1;
+
+    refreshRemoveButtons();
+    refreshOtherFields();
+
+    // 🔥 IMPORTANT: Re-bind camera buttons for the newly added form!
+    window.bindCameraButtons();
+
+    });
+
+
+
+    /* REMOVE BUTTON LOGIC */
+    function refreshRemoveButtons() {
+        document.querySelectorAll(".remove-doc").forEach(btn => {
+            btn.onclick = function () {
+                let card = btn.closest(".doc-item");
+                let deleteFlag = card.querySelector("input[type='checkbox']");
+                deleteFlag.checked = true;
+                card.style.display = "none";
+            };
+        });
+    }
+    refreshRemoveButtons();
+
+
+    /* OTHER DOCUMENT FIELD SHOW/HIDE */
+    function refreshOtherFields() {
+        document.querySelectorAll("select.doc-type-select").forEach(select => {
+            select.onchange = function () {
+                let card = select.closest(".doc-item");
+                let otherField = card.querySelector(".other-doc-field");
+                otherField.style.display = (select.value === "__other__") ? "block" : "none";
+            };
+            select.onchange(); // apply on load
+        });
+    }
+    refreshOtherFields();
+
+});
+</script>
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
+
+
+{% endblock %}

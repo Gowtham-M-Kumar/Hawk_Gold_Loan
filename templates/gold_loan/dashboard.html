@@ -1,34 +1,56 @@
 {% extends 'gold_loan/base.html' %}
 {% load static %}
 
-{% block title %}All Loans — Gold Loan{% endblock %}
-
 {% block head %}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">   <!-- Reuse modern styles -->
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 <link rel="stylesheet" href="{% static 'css/ga-layout.css' %}">
-<script src="https://unpkg.com/feather-icons"></script>
-
 <style>
-    .kpi-mini {
+
+    /* STAT CARDS */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 22px;
+    }
+
+    .stat-card {
         background: #fff;
-        padding: 18px;
-        border-radius: 14px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        flex: 1;
+        padding: 22px;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        display: flex;
+        align-items: center;
+        gap: 14px;
     }
 
-    .kpi-mini .label {
+    .icon-wrap {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+    }
+    .bg-blue { background: #2563eb; }
+    .bg-green { background: #16a34a; }
+    .bg-orange { background: #f97316; }
+    .bg-purple { background: #7c3aed; }
+
+    .stat-number {
+        font-size: 30px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .stat-label {
+        margin: 0;
         color: #6b7280;
-        font-size: 13px;
-        margin-bottom: 6px;
+        font-size: 14px;
     }
 
-    .kpi-mini .value {
-        font-size: 22px;
-        font-weight: 700;
-    }
-
-    /* Table container */
+    /* TABLE */
     .table-card {
         background: #fff;
         padding: 0;
@@ -50,103 +72,113 @@
         border-collapse: collapse;
     }
 
-    table.dashboard-table th,
+    table.dashboard-table th {
+        text-align: left;
+        font-size: 13px;
+        padding: 14px 18px;
+        background: #f9fafb;
+        border-bottom: 1px solid #e5e7eb;
+        color: #6b7280;
+    }
+
     table.dashboard-table td {
         padding: 14px 18px;
         border-bottom: 1px solid #f1f5f9;
         font-size: 14px;
+        vertical-align: middle;
     }
 
-    .filter-row {
+    .customer-cell {
         display: flex;
+        align-items: center;
         gap: 10px;
-        margin-right: 15px;
     }
 
-    .filter-input, .filter-select {
-        padding: 8px 10px;
-        border-radius: 10px;
-        border: 1px solid #e5e7eb;
+    .customer-cell img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
     }
 
-    /* Risk Colours */
     .risk-badge {
         padding: 4px 10px;
         border-radius: 6px;
         font-size: 12px;
         color: white;
+        font-weight: 600;
     }
 
     .risk-high { background: #dc2626; }
     .risk-medium { background: #f59e0b; }
     .risk-low { background: #10b981; }
 
-    /* View link */
     .view-link {
         color: #2563eb;
-        font-weight: 500;
+      .bg-red { background: #dc2626; }  font-weight: 600;
         text-decoration: none;
     }
+    
 
 </style>
 {% endblock %}
 
 {% block content %}
 
-
-
-<!-- KPI CARDS MATCHING HOMEPAGE -->
+<!-- ---------- STATS SECTION ---------- -->
 <div class="stats-grid">
 
     <div class="stat-card">
         <div class="icon-wrap bg-blue"><i data-feather="database"></i></div>
         <div>
-            <div class="stat-number">{{ total_loans }}</div>
-            <div class="stat-label">Total Loans</div>
+            <h3 class="stat-number" data-animate="{{ total_loans }}">0</h3>
+            <p class="stat-label">Total Loans</p>
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="icon-wrap bg-purple"><i data-feather="credit-card"></i></div>
+        <div>
+            <h3 class="stat-number" data-animate="{{ today_collections }}">0</h3>
+            <p class="stat-label">Today's Collections</p>
+        </div>
+    </div>
+    
+
+    <div class="stat-card">
+        <div class="icon-wrap bg-orange"><i data-feather="users"></i></div>
+        <div>
+            <h3 class="stat-number" data-animate="{{ customers_count }}">0</h3>
+            <p class="stat-label">Customers</p>
         </div>
     </div>
 
     <div class="stat-card">
-        <div class="icon-wrap bg-green"><i data-feather="activity"></i></div>
-        <div>
-            <div class="stat-number">{{ active_loans }}</div>
-            <div class="stat-label">Active Loans</div>
-        </div>
+    <div class="icon-wrap bg-red"><i data-feather="alert-circle"></i></div>
+    <div>
+        <h3 class="stat-number" data-animate="{{ pending_amount_total }}">0</h3>
+        <p class="stat-label">Pending Amount</p>
+    </div>
     </div>
 
-    <div class="stat-card">
-        <div class="icon-wrap bg-orange"><i data-feather="credit-card"></i></div>
-        <div>
-            <div class="stat-number">₹{{ total_amount }}</div>
-            <div class="stat-label">Total Amount</div>
-        </div>
-    </div>
-
-    {% comment %} <div class="stat-card">
-        <div class="icon-wrap bg-purple"><i data-feather="clock"></i></div>
-        <div>
-            <div class="stat-number">{{ avg_tenure|default:"-" }}</div>
-            <div class="stat-label">Avg Tenure (days)</div>
-        </div>
-    </div> {% endcomment %}
+    
 
 </div>
 
 
-<!-- ACTIVE LOANS TABLE (Modern UI) -->
+
+<!-- ---------- ACTIVE LOANS TABLE ---------- -->
 <div class="table-card">
 
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h3>Active Loans</h3>
 
-        <div class="filter-row">
-            {% comment %} <input id="tableFilter" class="filter-input" placeholder="Quick filter"> {% endcomment %}
-            <select id="statusFilter" class="filter-select">
-                <option value="all">All</option>
-                <option value="active">Active</option>
-                <option value="pending">Pending</option>
-            </select>
-        </div>
+        <select id="statusFilter" class="filter-select">
+            <option value="all">All</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+        </select>
     </div>
 
     <table class="dashboard-table" id="loansTable">
@@ -166,7 +198,18 @@
         {% for loan in loans %}
             <tr data-status="{{ loan.status }}">
                 <td>{{ loan.loan_number }}</td>
-                <td>{{ loan.customer.name }}</td>
+
+                <td>
+                    <div class="customer-cell">
+                        {% if loan.customer.photo %}
+                            <img src="{{ loan.customer.photo.url }}" alt="">
+                        {% else %}
+                            <img src="{% static 'images/avatar.png' %}" alt="">
+                        {% endif %}
+                        <span>{{ loan.customer.name }}</span>
+                    </div>
+                </td>
+
                 <td>₹{{ loan.total_loan_amount }}</td>
                 <td>{{ loan.get_status_display }}</td>
                 <td>{{ loan.created_at|date:"M d, Y" }}</td>
@@ -201,7 +244,36 @@
 
 {% block scripts %}
 <script>
-    feather.replace();
+feather.replace();
+
+/* ----------- ANIMATE STAT NUMBERS ----------- */
+document.querySelectorAll(".stat-number").forEach(el => {
+    const target = parseInt(el.dataset.animate || "0");
+    let count = 0;
+    const step = Math.max(1, Math.floor(target / 60));
+
+    function update() {
+        count += step;
+        el.textContent = count > target ? target : count;
+        if (count < target) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+});
 </script>
-<script src="{% static 'js/dashboard-search.js' %}"></script>
+<style>
+.bg-red { background: #dc2626; }
+</style>
+
+
+
 {% endblock %}
+
+
+{% comment %} 
+<script src="{% static 'js/dashboard-search.js' %}"></script> {% endcomment %}
+
+
+
+
+
+

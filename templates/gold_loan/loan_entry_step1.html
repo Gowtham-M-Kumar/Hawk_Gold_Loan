@@ -5,6 +5,8 @@
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'css/pages.css' %}">
 <link rel="stylesheet" href="{% static 'css/loan-entry.css' %}">
+
+
 <style>
 .file-input-wrapper {
     display: flex;
@@ -19,6 +21,7 @@
 .errorlist { color:#dc2626; font-size:13px; margin-top:4px; }
 .form-errors { background:#fee2e2; border:1px solid #fca5a5; padding:12px; border-radius:6px; margin-bottom:16px; color:#991b1b; }
 </style>
+
 {% endblock %}
 
 {% block title %}New Loan — Step 1{% endblock %}
@@ -103,11 +106,11 @@
 
                     <div class="file-input-wrapper">
                         {{ customer_form.photo }}
-                        <button type="button"
-                                class="btn outline open-camera"
+                        <button type="button" class="btn outline open-camera"
                                 data-target="{{ customer_form.photo.id_for_label }}">
                             Use Camera
                         </button>
+
                     </div>
 
                     {{ customer_form.photo.errors }}
@@ -124,5 +127,10 @@
     </div>
 
 </div> 
+
+
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
+
 
 {% endblock %}

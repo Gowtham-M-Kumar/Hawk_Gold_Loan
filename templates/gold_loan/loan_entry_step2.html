@@ -44,26 +44,102 @@
             {% endif %}
 
             <div class="card" style="margin-top:16px;">
-                <h4>Gold items (upload at least 2 images per item)</h4>
+    <h4>Gold items (upload at least 2 images per item)</h4>
 
-                {{ gold_formset.management_form }}
+    {{ gold_formset.management_form }}
 
-                {% for form in gold_formset %}
-                <div class="item-row">
-                    {{ form.non_field_errors }}
+    <div class="accordion" id="goldItemsAccordion">
 
-                    <div>{{ form.item_name.label_tag }} {{ form.item_name }}</div>
-                    <div>{{ form.carat_value.label_tag }} {{ form.carat_value }}</div>
-                    <div>{{ form.grams.label_tag }} {{ form.grams }}</div>
-                    <div>{{ form.description.label_tag }} {{ form.description }}</div>
+        {% for form in gold_formset %}
+        <div class="accordion-item" style="border:1px solid #e5e7eb; border-radius:8px; margin-bottom:12px;">
 
-                    <div><label>Image 1 *</label> {{ form.image_1 }}</div>
-                    <div><label>Image 2 *</label> {{ form.image_2 }}</div>
-                    <div><label>Image 3</label> {{ form.image_3 }}</div>
-                    <div><label>Image 4</label> {{ form.image_4 }}</div>
-                </div>
-                {% endfor %}
+            
+
+            <!-- COLLAPSE BODY -->
+            <div id="collapse{{ forloop.counter }}"
+                 class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                 aria-labelledby="heading{{ forloop.counter }}"
+                 data-bs-parent="#goldItemsAccordion">
+
+                <div class="accordion-body">
+
+                        {{ form.non_field_errors }}
+
+                        <div>{{ form.item_name.label_tag }} {{ form.item_name }}</div>
+                        <div>{{ form.carat_value.label_tag }} {{ form.carat_value }}</div>
+                        <div>{{ form.grams.label_tag }} {{ form.grams }}</div>
+                        <div>{{ form.description.label_tag }} {{ form.description }}</div>
+
+                        <hr>
+
+                        <!-- Image 1 -->
+                        <div>
+                            <label>Image 1 *</label>
+                            <div class="file-input-wrapper">
+                                {{ form.image_1 }}
+                                <button type="button"
+                                        class="btn outline open-camera"
+                                        data-target="{{ form.image_1.id_for_label }}">
+                                    Use Camera
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Image 2 -->
+                        <div>
+                            <label>Image 2 *</label>
+                            <div class="file-input-wrapper">
+                                {{ form.image_2 }}
+                                <button type="button"
+                                        class="btn outline open-camera"
+                                        data-target="{{ form.image_2.id_for_label }}">
+                                    Use Camera
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Image 3 -->
+                        <div>
+                            <label>Image 3</label>
+                            <div class="file-input-wrapper">
+                                {{ form.image_3 }}
+                                <button type="button"
+                                        class="btn outline open-camera"
+                                        data-target="{{ form.image_3.id_for_label }}">
+                                    Use Camera
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Image 4 -->
+                        <div>
+                            <label>Image 4</label>
+                            <div class="file-input-wrapper">
+                                {{ form.image_4 }}
+                                <button type="button"
+                                        class="btn outline open-camera"
+                                        data-target="{{ form.image_4.id_for_label }}">
+                                    Use Camera
+                                </button>
+                            </div>
+                        </div>
+
+                        {% if gold_formset.can_delete %}
+                        <div style="margin-top:10px;">
+                            {{ form.DELETE }} <label>Remove this item</label>
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+
             </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</div>
+
 
             <div class="card">
                 <h4>Loan details</h4>
@@ -84,7 +160,7 @@
                 <strong>Preview calculations</strong>
                 <div style="display:flex;gap:16px;margin-top:8px;">
                     <div>Daily interest: <span id="dailyVal">—</span></div>
-                    <div>Interest for <span id="daysVal">0</span> days: <span id="periodVal">—</span></div>
+                    {% comment %} <div>Interest for <span id="daysVal">0</span> days: <span id="periodVal">—</span></div> {% endcomment %}
                 </div>
             </div>
 
@@ -134,4 +210,10 @@ document.addEventListener('input', function(e){
 });
 window.addEventListener('load', compute);
 </script>
+
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
+
+
+
 {% endblock %}

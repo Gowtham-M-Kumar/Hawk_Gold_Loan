@@ -19,6 +19,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from goldrate import views  
+from gold_loan import views
+
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,6 +33,10 @@ urlpatterns = [
 
     # INCLUDE APP URLS
     path('loan/', include('gold_loan.urls')),
+    
+    # Gold Rate app URLs
+    path("goldrate/", include("goldrate.urls", namespace="goldrate")),
+
 ]
 
 if settings.DEBUG:

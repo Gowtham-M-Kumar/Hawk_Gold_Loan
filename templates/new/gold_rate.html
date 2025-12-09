@@ -1,0 +1,223 @@
+{% extends "gold_loan/base.html" %}
+{% load static %}
+
+{% block title %}Live Gold Rate — Tamil Nadu{% endblock %}
+
+{% block head %}
+<style>
+    .gr-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .gr-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.08);
+        margin-bottom: 18px;
+    }
+
+    .gr-card h4 {
+        margin-bottom: 6px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #444;
+    }
+
+    .gr-card h2 {
+        font-size: 26px;
+        font-weight: 600;
+        margin: 0;
+        color: #111;
+    }
+
+    .gr-section-title {
+        margin-top: 25px;
+        margin-bottom: 12px;
+        font-weight: 600;
+        font-size: 18px;
+        color: #222;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .gr-range-buttons button {
+        background: #f1f1f1;
+        border: 1px solid #ccc;
+        color: #333;
+        padding: 6px 14px;
+        border-radius: 8px;
+        margin-right: 8px;
+        font-size: 13px;
+        transition: 0.2s ease;
+    }
+
+    .gr-range-buttons button.active {
+        background: #2563eb;
+        border-color: #1d4ed8;
+        color: white;
+    }
+
+    .gr-range-buttons button:hover {
+        background: #e1e1e1;
+    }
+
+    .gr-chart-container {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0px 2px 6px rgba(0,0,0,0.08);
+        margin-top: 10px;
+    }
+
+    #lastUpdated {
+        color: #666;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4" style="max-width: 950px;">
+
+    <div class="gr-title">
+        <span class="material-icons-outlined" style="color:#f59e0b;">trending_up</span>
+        Live 24K Gold Rate · Tamil Nadu
+    </div>
+
+    <!-- PRICE CARDS -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="gr-card">
+                <h4>1 Gram</h4>
+                <h2>₹ <span id="card1g">{{ price_1g }}</span></h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="gr-card">
+                <h4>1 Pavan (8g)</h4>
+                <h2>₹ <span id="card8g">{{ price_8g }}</span></h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="gr-card">
+                <h4>1 Kilogram</h4>
+                <h2>₹ <span id="card1kg">{{ price_1kg }}</span></h2>
+            </div>
+        </div>
+    </div>
+
+    <p id="lastUpdated">Last updated: {{ updated }}</p>
+
+    <!-- RANGE BUTTONS -->
+    <div class="gr-section-title">
+        <span class="material-icons-outlined">show_chart</span>
+        Gold Rate Trend
+    </div>
+
+    <div class="gr-range-buttons mb-3">
+        <button class="active" data-range="5d">5D</button>
+        <button data-range="1m">1M</button>
+        <button data-range="1y">1Y</button>
+        <button data-range="max">MAX</button>
+    </div>
+
+    <!-- CHART -->
+    <div class="gr-chart-container">
+        <canvas id="goldChart" height="120"></canvas>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById("goldChart").getContext("2d");
+let labels = [];
+let values = [];
+
+let chart = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: labels,
+        datasets: [{
+            label: "Gold Rate (₹/gram)",
+            data: values,
+            borderColor: "#2563eb",
+            backgroundColor: "rgba(37,99,235,0.15)",
+            borderWidth: 2,
+            tension: 0.35,
+            fill: true
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false }},
+        scales: {
+            x: { ticks: { color: "#444" }},
+            y: { ticks: { color: "#444" }}
+        }
+    }
+});
+
+async function updateLive() {
+    const res = await fetch("/goldrate/api/live/");
+    const data = await res.json();
+
+    let price = data.price_1g;
+    let ts = data.timestamp;
+
+    document.getElementById("card1g").innerText = price;
+    document.getElementById("card8g").innerText = (price * 8).toFixed(2);
+    document.getElementById("card1kg").innerText = (price * 1000).toFixed(2);
+    document.getElementById("lastUpdated").innerText = "Last updated: " + ts;
+
+    labels.push(new Date().toLocaleTimeString());
+    values.push(price);
+
+    if (labels.length > 40) { labels.shift(); values.shift(); }
+
+    chart.update();
+}
+setInterval(updateLive, 3600000); // 1 hour
+
+updateLive();
+
+
+
+// highlight active button
+document.querySelectorAll(".gr-range-buttons button").forEach(btn => {
+    btn.addEventListener("click", async () => {
+        document.querySelectorAll(".gr-range-buttons button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const range = btn.dataset.range;
+
+        const res = await fetch(`/goldrate/api/history/?range=${range}`);
+        const data = await res.json();
+
+        labels.length = 0;
+        values.length = 0;
+
+        data.data.forEach(point => {
+            labels.push(new Date(point.t).toLocaleDateString());
+            values.push(point.v);
+        });
+
+        chart.update();
+    });
+});
+
+
+</script>
+
+{% endblock %}

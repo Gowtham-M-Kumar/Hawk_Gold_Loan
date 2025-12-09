@@ -5,6 +5,7 @@
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/ga-layout.css' %}">
 <script src="https://unpkg.com/feather-icons"></script>
 {% endblock %}
 
@@ -36,10 +37,10 @@
     </div>
 
     <div class="stat-card">
-        <div class="icon-wrap bg-green"><i data-feather="activity"></i></div>
+        <div class="icon-wrap bg-purple"><i data-feather="credit-card"></i></div>
         <div>
-            <h3 class="stat-number" data-animate="{{ active_loans }}">0</h3>
-            <p class="stat-label">Active Loans</p>
+            <h3 class="stat-number" data-animate="{{ today_collections }}">0</h3>
+            <p class="stat-label">Today's Collections</p>
         </div>
     </div>
 
@@ -52,124 +53,123 @@
     </div>
 
     <div class="stat-card">
-        <div class="icon-wrap bg-purple"><i data-feather="credit-card"></i></div>
+        <div class="icon-wrap bg-red"><i data-feather="alert-circle"></i></div>
         <div>
-            <h3 class="stat-number" data-animate="{{ today_collections }}">0</h3>
-            <p class="stat-label">Today's Collections</p>
+            <h3 class="stat-number" data-animate="{{ pending_amount_total }}">0</h3>
+            <p class="stat-label">Pending Amount</p>
         </div>
     </div>
 
 </div>
 
 
-<!-- RECENT LOANS -->
-<!-- ACTIVE LOANS TABLE (Modern UI) -->
-{% comment %} <div class="table-card"> {% endcomment %}
+<!-- RECENT LOANS + CALCULATOR -->
+<div class="row mt-4 gx-4 align-items-stretch">
 
-    <!-- GOLD CALCULATOR SECTION -->
-<div class="gold-calculator">
+    <div class="col-md-6">
+        <div class="gold-calculator h-100">
 
-    <h2 class="calc-title">Gold in Hand Calculator</h2>
+            <div class="gold-calculator-info">
+                <h2 class="calc-title">Gold in Hand Calculator</h2>
 
-    <!-- Weight Input -->
-    <input type="number" id="goldWeight" placeholder="Enter weight in grams" class="calc-input">
+                <input type="number" id="goldWeight" placeholder="Enter weight in grams" class="calc-input">
 
-    <!-- Carat Buttons -->
-    <h3 class="calc-subtitle">Choose Carat Value</h3>
-    <div class="carat-options">
-        <div class="carat-btn active" data-carat="18">18</div>
-        <div class="carat-btn" data-carat="19">19</div>
-        <div class="carat-btn" data-carat="20">20</div>
-        <div class="carat-btn" data-carat="21">21</div>
-        <div class="carat-btn" data-carat="22">22</div>
+                <h3 class="calc-subtitle">Choose Carat Value</h3>
+
+                <div class="carat-options">
+                    <div class="carat-btn active" data-carat="18">18</div>
+                    <div class="carat-btn" data-carat="19">19</div>
+                    <div class="carat-btn" data-carat="20">20</div>
+                    <div class="carat-btn" data-carat="21">21</div>
+                    <div class="carat-btn" data-carat="22">22</div>
+                </div>
+
+                <div class="calc-result" id="calcResult">
+                    0 L | You're eligible for ₹0 based on the gold details you entered.
+                </div>
+
+                <p class="calc-note">Note: The displayed amount is approximate.</p>
+            </div>
+
+            <div class="gold-calculator-info">
+                <h3 class="calc-title">Live Gold Rate (₹ / gram)</h3>
+                <canvas id="goldChartHome" height="150"></canvas>
+            </div>
+
+        </div>
     </div>
-
-    <!-- Result -->
-    <div class="calc-result" id="calcResult">
-        0 L | You're eligible for ₹0 based on the gold details you entered.
-    </div>
-
-    {% comment %} <!-- Apply Button -->
-    <button class="apply-now-btn">Apply Now</button> {% endcomment %}
-
-    <p class="calc-note">
-        Note: The displayed amount is approximate. Final value depends on branch evaluation.
-    </p>
 
 </div>
 
-    
-
-
-
-
-
 {% endblock %}
 
+
 {% block scripts %}
+
+<!-- ⭐ COUNTER ANIMATION SCRIPT -->
 <script>
-    feather.replace();
-
-    // Animated Stats Counter
+document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".stat-number").forEach(el => {
-        const target = parseInt(el.dataset.animate);
-        let count = 0;
-        const step = Math.max(1, Math.floor(target / 80));
+        let target = Number(el.dataset.animate);
+        let current = 0;
+        let speed = target / 40;  // Adjust for smoothness
 
-        const update = () => {
-            count += step;
-            el.textContent = count > target ? target : count;
-            if (count < target) requestAnimationFrame(update);
-        };
-        requestAnimationFrame(update);
-    });
+        function update() {
+            current += speed;
 
-
-
-    let selectedCarat = 18;
-
-    // Carat selection
-    document.querySelectorAll(".carat-btn").forEach(btn => {
-        btn.addEventListener("click", function () {
-            document.querySelectorAll(".carat-btn").forEach(b => b.classList.remove("active"));
-            this.classList.add("active");
-            selectedCarat = parseInt(this.dataset.carat);
-            calculateGoldValue();
-        });
-    });
-
-    // Trigger calculation when grams entered
-    document.getElementById("goldWeight").addEventListener("input", calculateGoldValue);
-
-    function calculateGoldValue() {
-        let grams = parseFloat(document.getElementById("goldWeight").value);
-
-        if (!grams || grams <= 0) {
-            updateResult(0);
-            return;
+            if (current >= target) {
+                el.innerText = Number(target).toLocaleString("en-IN");
+            } else {
+                el.innerText = Math.floor(current).toLocaleString("en-IN");
+                requestAnimationFrame(update);
+            }
         }
 
-        // FIXED SAMPLE GOLD RATE (you can update this anytime)
-        const goldRates = {
-            18: 3800,
-            19: 4000,
-            20: 4350,
-            21: 4650,
-            22: 5100
-        };
-
-        let eligibleAmount = grams * goldRates[selectedCarat];
-        updateResult(eligibleAmount);
-    }
-
-    function updateResult(amount) {
-        const lakh = (amount / 100000).toFixed(2);
-        const formatted = amount.toLocaleString("en-IN");
-
-        document.getElementById("calcResult").innerHTML =
-            `${lakh} L | You're eligible for ₹${formatted} based on the gold details you entered.`;
-    }
-
-
+        update();
+    });
+});
 </script>
+
+
+<!-- ⭐ GOLD CALCULATOR SCRIPT -->
+<script>
+let selectedCarat = 22;
+
+document.querySelectorAll(".carat-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+        document.querySelectorAll(".carat-btn").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        selectedCarat = this.dataset.carat;
+        calculateValue();
+    });
+});
+
+document.getElementById("goldWeight").addEventListener("input", calculateValue);
+
+function calculateValue() {
+    let grams = document.getElementById("goldWeight").value;
+
+    if (!grams || grams <= 0) {
+        updateResult(0);
+        return;
+    }
+
+    fetch(`/calculate_gold_value/?grams=${grams}&carat=${selectedCarat}`)
+        .then(res => res.json())
+        .then(data => updateResult(data.amount));
+}
+
+function updateResult(amount) {
+    const lakh = (amount / 100000).toFixed(2);
+    const formatted = Math.floor(amount).toLocaleString("en-IN");
+
+    document.getElementById("calcResult").innerHTML =
+        `${lakh} L | You're eligible for ₹${formatted} based on the gold details you entered.`;
+}
+</script>
+
+<style>
+.bg-red { background: #dc2626; }
+</style>
+
 {% endblock %}

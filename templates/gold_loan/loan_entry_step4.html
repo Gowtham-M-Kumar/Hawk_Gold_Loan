@@ -71,31 +71,40 @@ const loanId = "{{ loan_id }}";
 <script>
 let generatedOtp = null;
 
+// Generate random 4-digit OTP
 function generateOTP() {
     generatedOtp = Math.floor(1000 + Math.random() * 9000);
 }
 
+// Send OTP button
 document.getElementById("sendOtpBtn").addEventListener("click", function () {
     generateOTP();
-    document.getElementById("otp_input").value = generatedOtp;
+    document.getElementById("otp_input").value = generatedOtp;  // Auto-fill for demo
     document.getElementById("otp_message").innerHTML = "OTP generated.";
     document.getElementById("otp_message").style.color = "green";
     document.getElementById("verifyOtpBtn").disabled = false;
 });
 
+// Verify OTP button
 document.getElementById("verifyOtpBtn").addEventListener("click", function (e) {
     const userOtp = document.getElementById("otp_input").value;
 
+    // VALID OTP → allow form submission
     if (userOtp == generatedOtp) {
         document.getElementById("otp_message").innerHTML = "OTP Verified! Creating loan…";
         document.getElementById("otp_message").style.color = "green";
-    } else {
-        e.preventDefault();
-        document.getElementById("otp_message").innerHTML = "Invalid OTP.";
-        document.getElementById("otp_message").style.color = "red";
+        return true; // Allow POST to submit form
     }
+
+    // INVALID OTP → prevent submit
+    e.preventDefault();
+    document.getElementById("otp_message").innerHTML = "Invalid OTP.";
+    document.getElementById("otp_message").style.color = "red";
+    return false;
 });
 </script>
 
-{% endblock %}
+{% include 'gold_loan/camera.html' %}
+<script src="{% static 'js/camera.js' %}"></script>
 
+{% endblock %}

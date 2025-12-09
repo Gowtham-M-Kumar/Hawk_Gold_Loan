@@ -159,9 +159,28 @@
     margin-top: 25px;
     border-radius: 16px;
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    max-width: 520px;
+    width: 930px;
     border: 1px solid rgba(100, 170, 255, 0.25);
+
+    display: flex;             /* IMPORTANT */
+    flex-direction: row;       /* Horizontal layout */
+    gap: 22px;                 /* Space between calculator & chart */
+    justify-content: space-between;
+    align-items: stretch;      /* Same height */
 }
+
+.gold-calculator-info {
+    background: linear-gradient(135deg, #e8f3ff, #f3ffff);
+    padding: 18px;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(100, 170, 255, 0.25);
+
+    flex: 1;                     /* Equal width */
+    display: flex;
+    flex-direction: column;
+}
+
 
 .calc-title {
     font-size: 20px;
@@ -251,4 +270,18 @@
     margin-top: 8px;
     font-size: 12px;
     color: #6d6d6d;
+}
+
+.calculator-chart-row {
+    display: flex;
+    gap: 22px;
+}
+
+.gold-calculator,
+.gr-chart-container {
+    flex: 1;
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
 }

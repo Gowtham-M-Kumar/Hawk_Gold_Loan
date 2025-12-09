@@ -11,9 +11,29 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
+METALPRICE_API_KEY = "ea3cbc4bc13c38914087595a50de14eb"
+
+
+# Base URL for MetalPriceAPI (do NOT include query parameters here)
+METALPRICE_API_URL = "https://api.metalpriceapi.com/v1/latest"
+
+
+# GOLD API LIMIT SETTINGS
+GOLD_API_STATE = {
+    "count": 0,
+    "date": None,
+    "cached_price": None,
+    "cached_timestamp": None,
+    "max_daily_requests": 1,   # NEW FIELD
+}
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,7 +49,6 @@ ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -38,15 +57,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'gold_loan',
+    'goldrate',
+    
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',   # REQUIRED for messages
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',   # REQUIRED for popup
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -55,18 +76,34 @@ ROOT_URLCONF = 'gold_loan_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'templates'],   # your templates folder
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                'django.contrib.messages.context_processors.messages',  # REQUIRED
             ],
         },
     },
 ]
+
+
+# Django messages framework settings (optional but recommended)
+from django.contrib.messages import constants as messages
+
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
+
+MESSAGE_TAGS = {
+    messages.DEBUG: "debug",
+    messages.INFO: "info",
+    messages.SUCCESS: "success",
+    messages.WARNING: "warning",
+    messages.ERROR: "error",
+}
+
+
 
 WSGI_APPLICATION = 'gold_loan_project.wsgi.application'
 
